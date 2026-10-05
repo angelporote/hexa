@@ -123,12 +123,27 @@ interface GameState {
   bank: Record<ResourceId, number>;
   devDeck: DevCardId[]; // oculto para todos los clientes
   phase: Phase; // setup | roll | main | discard | robber | ... | ended
-  turn: { player: PlayerId; number: number };
-  pendingTrade?: TradeOffer;
-  awards: { largestArmy?: PlayerId; longestRoad?: PlayerId };
-  winner?: PlayerId;
+  turn: {
+    player: PlayerId;
+    number: number;
+    lastRoll: [number, number] | null;
+    devCardPlayed: boolean;
+  };
+  pendingTrade: TradeOffer | null;
+  nextOfferId: number;
+  awards: { largestArmy: PlayerId | null; longestRoad: PlayerId | null };
+  winner: PlayerId | null;
+  log: { player: PlayerId; action: Action }[]; // acciones aplicadas, para reproducir la partida
 }
 ```
+
+El estado es un valor JSON puro: se usa `null` en lugar de campos opcionales (no hay `undefined`, `Map` ni `Set`). El código de referencia está en `packages/engine/src/state/types.ts`.
+
+### Enumerar acciones y vistas
+
+`legalActions` enumera las acciones concretas que el motor aceptaría y las filtra con la misma validación que `applyAction`. Las ofertas de comercio (`OFFER_TRADE`) no se enumeran porque sus parámetros son libres; la vista indica con `canOfferTrade` si el jugador puede proponer una.
+
+El simulador (`pnpm sim`) vive en `packages/engine/src/sim` y su CLI en `scripts/sim.ts`, fuera del motor, para que el motor no toque Node.
 
 ### Información oculta
 

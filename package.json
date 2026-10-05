@@ -13,10 +13,11 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck && tsc -p scripts/tsconfig.json",
     "lint": "eslint .",
-    "check": "pnpm check:terms && pnpm typecheck && pnpm lint && pnpm test",
+    "check": "pnpm check:terms && pnpm check:engine && pnpm typecheck && pnpm lint && pnpm test",
     "check:terms": "node scripts/check-forbidden-terms.mjs",
     "format": "prettier --write .",
-    "sim": "tsx scripts/sim.ts"
+    "sim": "tsx scripts/sim.ts",
+    "check:engine": "node scripts/check-engine-purity.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

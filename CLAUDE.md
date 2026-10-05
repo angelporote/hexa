@@ -35,10 +35,10 @@ pnpm dev                             # servidor + web en modo desarrollo
 pnpm test                            # todos los tests
 pnpm typecheck                       # tipos en todo el monorepo
 pnpm lint                            # ESLint
-pnpm check                           # términos prohibidos + typecheck + lint + test (lo que ejecuta la CI)
+pnpm check                           # términos prohibidos + pureza del motor + typecheck + lint + test (lo que ejecuta la CI)
 pnpm format                          # Prettier
 pnpm --filter @hexa/engine test      # tests de un paquete
-pnpm sim -- --games 1000             # simulador de partidas (fase 1)
+pnpm sim -- --games 1000             # simulador de partidas (bots aleatorios + invariantes)
 ```
 
 ## Reglas de arquitectura (no negociables)

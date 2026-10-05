@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 0 (tareas completadas; falta verificar CI en GitHub)
-- **Última tarea completada:** 0.8
-- **Bloqueos / dudas abiertas:** no hay remoto de GitHub, así que la CI (0.6) está escrita pero sin ejecutar. TypeScript fijado en 6.0 (ver ADR 0001).
-- **Próximo paso:** Fase 1, tarea 1.1
+- **Fase en curso:** 1 completada (hito M1); la siguiente es la Fase 2
+- **Última tarea completada:** 1.16
+- **Bloqueos / dudas abiertas:** la CI de GitHub (0.6) está escrita y subida pero no he podido comprobar que salga en verde (repo privado, sin acceso a la API). Revisar la pestaña Actions. El simulador encontró y corrigió un fallo real (ofertas de comercio abiertas tras un cambio de fase).
+- **Próximo paso:** Fase 2, tarea 2.1 (`packages/protocol`)
 
 ## Objetivo del MVP publicable
 
@@ -59,8 +59,8 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 - [x] **1.12** Bonificaciones de mayor ejército y camino más largo, incluidos los cortes de camino por edificios ajenos. Batería de tests específica para el camino más largo (ciclos, ramificaciones, cortes, empates).
 - [x] **1.13** Condición de victoria comprobada en el turno del jugador; fin de partida.
 - [x] **1.14** `legalActions(state, player)` y `getPlayerView(state, viewer)` con ocultación de información.
-- [ ] **1.15** Simulador (`pnpm sim`): bots aleatorios juegan N partidas completas con semillas distintas. Invariantes comprobadas en cada paso: conservación total de recursos y cartas, puntos coherentes, ningún estado ilegal.
-- [ ] **1.16** `docs/RULES.md` redactado desde cero con nuestras palabras.
+- [x] **1.15** Simulador (`pnpm sim`): bots aleatorios juegan N partidas completas con semillas distintas. Invariantes comprobadas en cada paso: conservación total de recursos y cartas, puntos coherentes, ningún estado ilegal.
+- [x] **1.16** `docs/RULES.md` redactado desde cero con nuestras palabras.
 
 **Criterios de aceptación:** 1.000 partidas simuladas sin errores ni invariantes rotas; cobertura del motor ≥ 90 %; el motor no importa nada de Node ni del navegador.
 
