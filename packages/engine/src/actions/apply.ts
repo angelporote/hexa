@@ -2,6 +2,7 @@ import { err, ok } from '../result.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import { buildCity, buildRoad, buildSettlement } from './build.js';
 import type { ActionResult } from './outcome.js';
+import { discard, moveRobber } from './robber.js';
 import { roll } from './roll.js';
 import { setupBuildRoad, setupBuildSettlement } from './setup.js';
 import type { Action } from './types.js';
@@ -20,6 +21,10 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
         : buildRoad(state, player, action.edge);
     case 'BUILD_CITY':
       return buildCity(state, player, action.vertex);
+    case 'DISCARD':
+      return discard(state, player, action.resources);
+    case 'MOVE_ROBBER':
+      return moveRobber(state, player, action.hex, action.victim);
     default:
       return err('NOT_IMPLEMENTED');
   }

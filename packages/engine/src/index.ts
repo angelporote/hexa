@@ -21,3 +21,4 @@ export * from './rules/production.js';
 export * from './rules/placement.js';
 export * from './state/update.js';
 export * from './rules/costs.js';
+export * from './rules/robber.js';

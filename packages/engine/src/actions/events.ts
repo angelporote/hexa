@@ -1,3 +1,4 @@
+import type { HexId } from '../board/hex.js';
 import type { EdgeId, VertexId } from '../board/topology.js';
 import type { ResourceId } from '../board/types.js';
 import type { ResourceCounts } from '../state/resources.js';
@@ -21,4 +22,12 @@ export type GameEvent =
       readonly dice: readonly [number, number];
       readonly total: number;
     }
-  | { readonly type: 'PRODUCTION_SHORTAGE'; readonly resource: ResourceId };
+  | { readonly type: 'PRODUCTION_SHORTAGE'; readonly resource: ResourceId }
+  | { readonly type: 'CARDS_DISCARDED'; readonly player: PlayerId; readonly count: number }
+  | {
+      readonly type: 'ROBBER_MOVED';
+      readonly player: PlayerId;
+      readonly hex: HexId;
+      readonly victim: PlayerId | null;
+    }
+  | { readonly type: 'CARD_STOLEN'; readonly thief: PlayerId; readonly victim: PlayerId };
