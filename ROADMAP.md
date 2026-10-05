@@ -70,7 +70,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 **Objetivo:** salas con código, roles, reconexión y una partida completa jugada por clientes simulados a través de la red.
 
-- [ ] **2.1** `packages/protocol`: esquemas Zod de mensajes cliente → servidor y servidor → cliente, con número de versión del protocolo.
+- [x] **2.1** `packages/protocol`: esquemas Zod de mensajes cliente → servidor y servidor → cliente, con número de versión del protocolo.
 - [ ] **2.2** Servidor Node con Fastify + Socket.IO. Gestor de salas detrás de la interfaz `RoomStore` (implementación en memoria por ahora).
 - [ ] **2.3** Códigos de sala de 4 letras sin caracteres ambiguos, únicos entre las salas activas, que caducan con la sala.
 - [ ] **2.4** Roles: `host` (pantalla), `player`, `spectator`. Lobby: nombre, color, listo; el host inicia la partida.
