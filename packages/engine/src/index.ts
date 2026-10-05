@@ -24,3 +24,5 @@ export * from './rules/costs.js';
 export * from './rules/robber.js';
 export * from './rules/ports.js';
 export { offerRecipients } from './actions/player-trade.js';
+export * from './scoring/longest-road.js';
+export * from './scoring/awards.js';

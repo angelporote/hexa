@@ -55,4 +55,10 @@ export type GameEvent =
       readonly offerId: number;
       readonly from: PlayerId;
       readonly with: PlayerId;
+    }
+  | {
+      readonly type: 'AWARD_CHANGED';
+      readonly award: 'longestRoad' | 'largestArmy';
+      readonly holder: PlayerId | null;
+      readonly previous: PlayerId | null;
     };

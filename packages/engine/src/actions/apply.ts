@@ -1,4 +1,5 @@
 import { err, ok } from '../result.js';
+import { updateAwards } from '../scoring/awards.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import { bankTrade } from './bank-trade.js';
 import { buildCity, buildRoad, buildSettlement } from './build.js';
@@ -69,9 +70,10 @@ export function applyAction(state: GameState, playerId: PlayerId, action: Action
   const result = dispatch(state, playerId, action);
   if (!result.ok) return result;
 
-  const next: GameState = {
+  const logged: GameState = {
     ...result.value.state,
     log: [...result.value.state.log, { player: playerId, action }],
   };
-  return ok({ state: next, events: result.value.events });
+  const awards = updateAwards(logged);
+  return ok({ state: awards.state, events: [...result.value.events, ...awards.events] });
 }

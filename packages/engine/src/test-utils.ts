@@ -92,3 +92,40 @@ export function toRollPhase(state: GameState, player: PlayerId = 'p0'): GameStat
     turn: { player, number: 1, lastRoll: null, devCardPlayed: false },
   };
 }
+
+export function giveRoads(state: GameState, player: PlayerId, edges: readonly string[]): GameState {
+  const roads = { ...state.roads };
+  for (const e of edges) roads[e] = player;
+  return { ...state, roads };
+}
+
+/** Camino simple de `length` aristas consecutivas, evitando las aristas y vértices indicados. */
+export function findChain(
+  state: GameState,
+  length: number,
+  avoidEdges: ReadonlySet<string> = new Set(),
+): { edges: string[]; vertices: string[] } {
+  const { vertices, edgeById } = state.board.topology;
+  const search = (
+    path: string[],
+    edges: string[],
+  ): { edges: string[]; vertices: string[] } | null => {
+    if (edges.length === length) return { edges, vertices: path };
+    const last = path[path.length - 1] ?? '';
+    const node = state.board.topology.vertexById[last];
+    for (const e of node?.edges ?? []) {
+      if (edges.includes(e) || avoidEdges.has(e)) continue;
+      const ends = edgeById[e]?.vertices ?? ['', ''];
+      const next = ends[0] === last ? ends[1] : ends[0];
+      if (path.includes(next)) continue;
+      const found = search([...path, next], [...edges, e]);
+      if (found) return found;
+    }
+    return null;
+  };
+  for (const v of vertices) {
+    const found = search([v.id], []);
+    if (found) return found;
+  }
+  throw new Error(`No hay cadena de ${length} aristas`);
+}
