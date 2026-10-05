@@ -22,3 +22,4 @@ export * from './rules/placement.js';
 export * from './state/update.js';
 export * from './rules/costs.js';
 export * from './rules/robber.js';
+export * from './rules/ports.js';

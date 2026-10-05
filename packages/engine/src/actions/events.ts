@@ -38,4 +38,11 @@ export type GameEvent =
       readonly player: PlayerId;
       readonly resource: ResourceId;
       readonly total: number;
+    }
+  | {
+      readonly type: 'BANK_TRADED';
+      readonly player: PlayerId;
+      readonly give: ResourceId;
+      readonly giveCount: number;
+      readonly want: ResourceId;
     };

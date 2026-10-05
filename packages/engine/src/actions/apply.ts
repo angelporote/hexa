@@ -1,5 +1,6 @@
 import { err, ok } from '../result.js';
 import type { GameState, PlayerId } from '../state/types.js';
+import { bankTrade } from './bank-trade.js';
 import { buildCity, buildRoad, buildSettlement } from './build.js';
 import type { ActionResult } from './outcome.js';
 import { buyDevCard, playArmy, playMonopoly, playPlenty, playRoads } from './dev-cards.js';
@@ -39,6 +40,8 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
       return playMonopoly(state, player, action.resource);
     case 'END_TURN':
       return endTurn(state, player);
+    case 'BANK_TRADE':
+      return bankTrade(state, player, action.give, action.want);
     default:
       return err('NOT_IMPLEMENTED');
   }
