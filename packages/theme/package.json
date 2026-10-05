@@ -9,5 +9,8 @@
   },
   "exports": {
     ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@hexa/engine": "workspace:*"
   }
 }

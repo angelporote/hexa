@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 2 completada; la siguiente es la Fase 3
-- **Última tarea completada:** 2.9
-- **Bloqueos / dudas abiertas:** ninguno. La CI de GitHub está en verde y el repo es público. El simulador de la Fase 1 encontró y corrigió un fallo real (ofertas de comercio abiertas tras un cambio de fase).
-- **Próximo paso:** Fase 3, tarea 3.1 (app web con Vite + React y rutas)
+- **Fase en curso:** 3 completada; la siguiente es la Fase 4 (mando móvil)
+- **Última tarea completada:** 3.6
+- **Bloqueos / dudas abiertas:** ninguno. Nota: para que un móvil entre por el QR en desarrollo hay que abrir la pantalla del host por la IP del ordenador (no `localhost`). Las páginas `/join` y `/play/:code` son marcadores de posición hasta la fase 4.
+- **Próximo paso:** Fase 4, tarea 4.1 (unirse por código o QR desde el móvil)
 
 ## Objetivo del MVP publicable
 
@@ -88,12 +88,12 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 **Objetivo:** la pantalla grande muestra lobby y partida en tiempo real.
 
-- [ ] **3.1** App web con Vite + React y rutas: `/` (inicio), `/host`, `/join`, `/play/:code`.
-- [ ] **3.2** Cliente de red común (`apps/web/src/net`) con estado de conexión y reconexión.
-- [ ] **3.3** Lobby del host: código grande, QR con el enlace de unión, jugadores conectados.
-- [ ] **3.4** Tablero en SVG generado desde el estado (componentes `Hex`, `Vertex`, `Edge`, `Port`, `Robber`), adaptado a cualquier resolución.
-- [ ] **3.5** Panel de jugadores (puntos públicos, nº de cartas, bonificaciones), registro de eventos, animación de dados y del jugador activo.
-- [ ] **3.6** `packages/theme` con nombres, colores e iconos provisionales propios; i18n es/en configurado.
+- [x] **3.1** App web con Vite + React y rutas: `/` (inicio), `/host`, `/join`, `/play/:code`.
+- [x] **3.2** Cliente de red común (`apps/web/src/net`) con estado de conexión y reconexión.
+- [x] **3.3** Lobby del host: código grande, QR con el enlace de unión, jugadores conectados.
+- [x] **3.4** Tablero en SVG generado desde el estado (componentes `Hex`, `Vertex`, `Edge`, `Port`, `Robber`), adaptado a cualquier resolución.
+- [x] **3.5** Panel de jugadores (puntos públicos, nº de cartas, bonificaciones), registro de eventos, animación de dados y del jugador activo.
+- [x] **3.6** `packages/theme` con nombres, colores e iconos provisionales propios; i18n es/en configurado.
 
 **Criterios de aceptación:** una partida jugada por bots del servidor se ve correctamente y en tiempo real en la pantalla del host.
 
