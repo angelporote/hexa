@@ -19,6 +19,11 @@ export function endTurn(state: GameState, player: PlayerId): ActionResult {
       // Una oferta abierta caduca al acabar el turno de quien la hizo.
       pendingTrade: null,
     },
-    events: [{ type: 'TURN_STARTED', player: following.id, number }],
+    events: [
+      ...(state.pendingTrade
+        ? [{ type: 'TRADE_CANCELLED' as const, offerId: state.pendingTrade.id }]
+        : []),
+      { type: 'TURN_STARTED', player: following.id, number },
+    ],
   });
 }

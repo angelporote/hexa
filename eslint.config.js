@@ -13,7 +13,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.{mjs,ts}'],
     languageOptions: { globals: { console: 'readonly', process: 'readonly' } },
   },
   prettier,

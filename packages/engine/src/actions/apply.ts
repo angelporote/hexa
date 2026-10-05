@@ -4,6 +4,7 @@ import { checkVictory } from '../scoring/victory.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import { bankTrade } from './bank-trade.js';
 import { buildCity, buildRoad, buildSettlement } from './build.js';
+import type { GameEvent } from './events.js';
 import type { ActionResult } from './outcome.js';
 import { buyDevCard, playArmy, playMonopoly, playPlenty, playRoads } from './dev-cards.js';
 import { discard, moveRobber } from './robber.js';
@@ -84,8 +85,14 @@ export function applyAction(state: GameState, playerId: PlayerId, action: Action
   };
   const awards = updateAwards(logged);
   const victory = checkVictory(awards.state);
-  return ok({
-    state: victory.state,
-    events: [...result.value.events, ...awards.events, ...victory.events],
-  });
+  const events: GameEvent[] = [...result.value.events, ...awards.events, ...victory.events];
+
+  // Una oferta abierta solo vive en la fase principal: si la acción (o el fin de la partida)
+  // saca el juego de ahí, la oferta se cancela.
+  let final = victory.state;
+  if (final.pendingTrade && final.phase.type !== 'main') {
+    events.push({ type: 'TRADE_CANCELLED', offerId: final.pendingTrade.id });
+    final = { ...final, pendingTrade: null };
+  }
+  return ok({ state: final, events });
 }

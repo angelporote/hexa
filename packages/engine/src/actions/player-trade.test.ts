@@ -200,3 +200,40 @@ describe('cancelar y confirmar', () => {
     expect(s.pendingTrade).toBeNull();
   });
 });
+
+describe('cancelación automática de ofertas', () => {
+  it('jugar una carta que cambia la fase cancela la oferta abierta', () => {
+    let s = offered();
+    s = {
+      ...s,
+      players: s.players.map((p) =>
+        p.id === 'p0' ? { ...p, devCards: [{ card: 'army' as const, boughtOnTurn: 1 }] } : p,
+      ),
+    };
+    const r = apply(s, 'p0', { type: 'PLAY_ARMY' });
+    expect(r.state.pendingTrade).toBeNull();
+    expect(r.state.phase.type).toBe('robber');
+    expect(r.events).toContainEqual({ type: 'TRADE_CANCELLED', offerId: 1 });
+  });
+
+  it('terminar el turno emite la cancelación de la oferta abierta', () => {
+    const r = apply(offered(), 'p0', { type: 'END_TURN' });
+    expect(r.events).toContainEqual({ type: 'TRADE_CANCELLED', offerId: 1 });
+  });
+
+  it('si la partida termina con una oferta abierta, esta se cancela', () => {
+    let s = offered();
+    const free = s.board.topology.vertices.filter((v) => !s.buildings[v.id]);
+    const picked: string[] = [];
+    for (const v of free) {
+      if (picked.every((p) => !s.board.topology.vertexById[p]?.neighbors.includes(v.id)))
+        picked.push(v.id);
+    }
+    for (const id of picked.slice(0, 5)) {
+      s = { ...s, buildings: { ...s.buildings, [id]: { owner: 'p0', kind: 'city' } } };
+    }
+    const r = apply(s, 'p0', { type: 'BANK_TRADE', give: 'r1', want: 'r3' });
+    expect(r.state.phase.type).toBe('ended');
+    expect(r.state.pendingTrade).toBeNull();
+  });
+});

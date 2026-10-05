@@ -30,3 +30,6 @@ export * from './scoring/points.js';
 export * from './scoring/victory.js';
 export * from './views/legal-actions.js';
 export * from './views/player-view.js';
+export * from './sim/bot.js';
+export * from './sim/invariants.js';
+export * from './sim/simulate.js';
