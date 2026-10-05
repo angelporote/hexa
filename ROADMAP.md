@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 1 completada (hito M1); la siguiente es la Fase 2
-- **Última tarea completada:** 1.16
+- **Fase en curso:** 2 completada; la siguiente es la Fase 3
+- **Última tarea completada:** 2.9
 - **Bloqueos / dudas abiertas:** ninguno. La CI de GitHub está en verde y el repo es público. El simulador de la Fase 1 encontró y corrigió un fallo real (ofertas de comercio abiertas tras un cambio de fase).
-- **Próximo paso:** Fase 2, tarea 2.1 (`packages/protocol`)
+- **Próximo paso:** Fase 3, tarea 3.1 (app web con Vite + React y rutas)
 
 ## Objetivo del MVP publicable
 
@@ -71,14 +71,14 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 **Objetivo:** salas con código, roles, reconexión y una partida completa jugada por clientes simulados a través de la red.
 
 - [x] **2.1** `packages/protocol`: esquemas Zod de mensajes cliente → servidor y servidor → cliente, con número de versión del protocolo.
-- [ ] **2.2** Servidor Node con Fastify + Socket.IO. Gestor de salas detrás de la interfaz `RoomStore` (implementación en memoria por ahora).
-- [ ] **2.3** Códigos de sala de 4 letras sin caracteres ambiguos, únicos entre las salas activas, que caducan con la sala.
-- [ ] **2.4** Roles: `host` (pantalla), `player`, `spectator`. Lobby: nombre, color, listo; el host inicia la partida.
-- [ ] **2.5** Sesiones: token aleatorio por asiento que el cliente guarda; al reconectar recupera su asiento y su vista.
-- [ ] **2.6** Bucle de acción: recibir → validar con Zod → comprobar permiso → motor → enviar a cada cliente su vista + eventos.
-- [ ] **2.7** Registro de acciones por sala (semilla + lista de acciones) para poder reproducir cualquier partida.
-- [ ] **2.8** Robustez: límite de mensajes por socket, tamaño máximo de mensaje, limpieza de salas inactivas, logs estructurados (pino).
-- [ ] **2.9** Tests de integración con `socket.io-client`: crear sala, unir 4 bots, jugar una partida completa; desconectar y reconectar un jugador a mitad de partida.
+- [x] **2.2** Servidor Node con Fastify + Socket.IO. Gestor de salas detrás de la interfaz `RoomStore` (implementación en memoria por ahora).
+- [x] **2.3** Códigos de sala de 4 letras sin caracteres ambiguos, únicos entre las salas activas, que caducan con la sala.
+- [x] **2.4** Roles: `host` (pantalla), `player`, `spectator`. Lobby: nombre, color, listo; el host inicia la partida.
+- [x] **2.5** Sesiones: token aleatorio por asiento que el cliente guarda; al reconectar recupera su asiento y su vista.
+- [x] **2.6** Bucle de acción: recibir → validar con Zod → comprobar permiso → motor → enviar a cada cliente su vista + eventos.
+- [x] **2.7** Registro de acciones por sala (semilla + lista de acciones) para poder reproducir cualquier partida.
+- [x] **2.8** Robustez: límite de mensajes por socket, tamaño máximo de mensaje, limpieza de salas inactivas, logs estructurados (pino).
+- [x] **2.9** Tests de integración con `socket.io-client`: crear sala, unir 4 bots, jugar una partida completa; desconectar y reconectar un jugador a mitad de partida.
 
 **Criterios de aceptación:** el test de integración de partida completa pasa; ningún cliente recibe información oculta de otro (test explícito).
 

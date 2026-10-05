@@ -155,7 +155,9 @@ Mensajes cliente → servidor: `room:create`, `room:join`, `lobby:update`, `lobb
 
 Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions`), `game:events`, `error`.
 
-Todos llevan `protocolVersion`. El servidor valida cada mensaje con Zod antes de procesarlo y descarta los inválidos.
+Todos los mensajes del cliente llevan `protocolVersion`. El servidor valida cada uno con Zod antes de procesarlo y descarta los inválidos (`UNKNOWN_MESSAGE`, `PROTOCOL_VERSION_MISMATCH`, `INVALID_MESSAGE`).
+
+Las peticiones del cliente reciben una respuesta (ack) `{ ok: true, data } | { ok: false, error }`; `room:create`, `room:join` y `session:resume` devuelven la sesión (`code`, `token`, `role`, `playerId`). Detalles y razones en `docs/decisions/0007-servidor-gestor-de-salas.md`.
 
 ## Flujo de una acción
 
