@@ -53,7 +53,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 - [x] **1.6** Tirada de dados y producción, incluida la regla de escasez del banco.
 - [x] **1.7** Construcción de caminos, poblados (regla de distancia y conexión) y ciudades; costes; límite de piezas por jugador.
 - [x] **1.8** El 7: descarte de la mitad para quien supere el límite de cartas, mover el ladrón, robar a un jugador adyacente.
-- [ ] **1.9** Cartas de desarrollo: compra, restricción de no jugar la comprada en el mismo turno, máximo una por turno, efectos de cada tipo.
+- [x] **1.9** Cartas de desarrollo: compra, restricción de no jugar la comprada en el mismo turno, máximo una por turno, efectos de cada tipo.
 - [ ] **1.10** Comercio con el banco y con puertos (genéricos y específicos).
 - [ ] **1.11** Comercio entre jugadores en el motor: proponer, aceptar, rechazar, cancelar; solo con el jugador activo.
 - [ ] **1.12** Bonificaciones de mayor ejército y camino más largo, incluidos los cortes de camino por edificios ajenos. Batería de tests específica para el camino más largo (ciclos, ramificaciones, cortes, empates).

@@ -3,6 +3,7 @@ import { err, ok } from '../result.js';
 import { COSTS } from '../rules/costs.js';
 import {
   edgeExists,
+  legalRoadEdges,
   respectsDistanceRule,
   roadConnects,
   touchesOwnRoad,
@@ -20,21 +21,34 @@ function inMainPhase(state: GameState, player: PlayerId): ActionResult | null {
 }
 
 export function buildRoad(state: GameState, player: PlayerId, edge: EdgeId): ActionResult {
-  const blocked = inMainPhase(state, player);
-  if (blocked) return blocked;
+  if (state.turn.player !== player) return err('NOT_YOUR_TURN');
+  // Con la carta de caminos, la construcción es gratuita mientras dure la fase roadBuilding.
+  const phase = state.phase;
+  const free = phase.type === 'roadBuilding';
+  if (!free && phase.type !== 'main') return err('WRONG_PHASE');
   if (!edgeExists(state, edge)) return err('INVALID_EDGE');
   if (state.roads[edge]) return err('EDGE_OCCUPIED');
   if (!roadConnects(state, player, edge)) return err('NOT_CONNECTED');
   const me = getPlayer(state, player);
   if (me.pieces.roads < 1) return err('NO_PIECES_LEFT');
-  if (!covers(me.hand, COSTS.road)) return err('NOT_ENOUGH_RESOURCES');
+  if (!free && !covers(me.hand, COSTS.road)) return err('NOT_ENOUGH_RESOURCES');
 
-  let next = payToBank(state, player, COSTS.road);
+  let next = free ? state : payToBank(state, player, COSTS.road);
   next = { ...next, roads: { ...next.roads, [edge]: player } };
   next = mapPlayer(next, player, (p) => ({
     ...p,
     pieces: { ...p.pieces, roads: p.pieces.roads - 1 },
   }));
+  if (phase.type === 'roadBuilding') {
+    const remaining = phase.remaining - 1;
+    const canContinue = remaining > 0 && legalRoadEdges(next, player).length > 0;
+    next = {
+      ...next,
+      phase: canContinue
+        ? { type: 'roadBuilding', remaining, returnTo: phase.returnTo }
+        : { type: phase.returnTo },
+    };
+  }
   return ok({ state: next, events: [{ type: 'ROAD_BUILT', player, edge }] });
 }
 

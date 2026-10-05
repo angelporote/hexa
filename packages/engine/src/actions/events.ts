@@ -2,7 +2,7 @@ import type { HexId } from '../board/hex.js';
 import type { EdgeId, VertexId } from '../board/topology.js';
 import type { ResourceId } from '../board/types.js';
 import type { ResourceCounts } from '../state/resources.js';
-import type { PlayerId } from '../state/types.js';
+import type { DevCardId, PlayerId } from '../state/types.js';
 
 /** Lo ocurrido, para animaciones y registro. No contiene información oculta de terceros. */
 export type GameEvent =
@@ -13,7 +13,7 @@ export type GameEvent =
       readonly type: 'RESOURCES_GAINED';
       readonly player: PlayerId;
       readonly resources: ResourceCounts;
-      readonly reason: 'setup' | 'roll';
+      readonly reason: 'setup' | 'roll' | 'dev-card';
     }
   | { readonly type: 'TURN_STARTED'; readonly player: PlayerId; readonly number: number }
   | {
@@ -30,4 +30,12 @@ export type GameEvent =
       readonly hex: HexId;
       readonly victim: PlayerId | null;
     }
-  | { readonly type: 'CARD_STOLEN'; readonly thief: PlayerId; readonly victim: PlayerId };
+  | { readonly type: 'CARD_STOLEN'; readonly thief: PlayerId; readonly victim: PlayerId }
+  | { readonly type: 'DEV_CARD_BOUGHT'; readonly player: PlayerId }
+  | { readonly type: 'DEV_CARD_PLAYED'; readonly player: PlayerId; readonly card: DevCardId }
+  | {
+      readonly type: 'MONOPOLY_COLLECTED';
+      readonly player: PlayerId;
+      readonly resource: ResourceId;
+      readonly total: number;
+    };

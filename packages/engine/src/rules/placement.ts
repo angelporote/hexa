@@ -41,3 +41,10 @@ export function roadConnects(state: GameState, player: PlayerId, edge: EdgeId): 
   }
   return false;
 }
+
+/** Aristas donde `player` podría colocar un camino ahora (libres y enlazadas con su red). */
+export function legalRoadEdges(state: GameState, player: PlayerId): EdgeId[] {
+  return state.board.topology.edges
+    .map((e) => e.id)
+    .filter((id) => !state.roads[id] && roadConnects(state, player, id));
+}
