@@ -115,14 +115,14 @@ interface GameState {
   seed: string;
   rng: RngState;
   config: GameConfig;
-  board: Board;                 // hexágonos, vértices, aristas, puertos
-  players: PlayerState[];       // recursos, cartas, piezas restantes
+  board: Board; // hexágonos, vértices, aristas, puertos
+  players: PlayerState[]; // recursos, cartas, piezas restantes
   buildings: Record<VertexId, { owner: PlayerId; kind: 'settlement' | 'city' }>;
   roads: Record<EdgeId, PlayerId>;
   robber: HexId;
   bank: Record<ResourceId, number>;
-  devDeck: DevCardId[];         // oculto para todos los clientes
-  phase: Phase;                 // setup | roll | main | discard | robber | ... | ended
+  devDeck: DevCardId[]; // oculto para todos los clientes
+  phase: Phase; // setup | roll | main | discard | robber | ... | ended
   turn: { player: PlayerId; number: number };
   pendingTrade?: TradeOffer;
   awards: { largestArmy?: PlayerId; longestRoad?: PlayerId };
@@ -156,12 +156,12 @@ Cada sala guarda `seed + config + lista de acciones`. Como el motor es determini
 
 ## Plan de escalado
 
-| Etapa | Cuándo | Cómo |
-|---|---|---|
-| 1 | Desarrollo y beta privada | Una instancia, salas en memoria. |
-| 2 | Beta pública | `RoomStore` en Redis; las salas sobreviven a reinicios y despliegues. |
-| 3 | Crecimiento | Varias instancias; adaptador Redis de Socket.IO; cada sala anclada a una instancia (enrutado por código de sala / sticky sessions). |
-| 4 | Producto con cuentas | Postgres para usuarios, estadísticas y clasificación; Redis sigue para partidas en curso. |
+| Etapa | Cuándo                    | Cómo                                                                                                                                |
+| ----- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Desarrollo y beta privada | Una instancia, salas en memoria.                                                                                                    |
+| 2     | Beta pública              | `RoomStore` en Redis; las salas sobreviven a reinicios y despliegues.                                                               |
+| 3     | Crecimiento               | Varias instancias; adaptador Redis de Socket.IO; cada sala anclada a una instancia (enrutado por código de sala / sticky sessions). |
+| 4     | Producto con cuentas      | Postgres para usuarios, estadísticas y clasificación; Redis sigue para partidas en curso.                                           |
 
 Al ser un juego por turnos, la carga por sala es mínima: el límite práctico lo marcan las conexiones abiertas, no la CPU.
 

@@ -6,12 +6,12 @@ Nombre en clave provisional: **`hexa`** (paquetes `@hexa/*`). El nombre comercia
 
 ## Fuentes de verdad
 
-| Documento | Para qué |
-|---|---|
-| `ROADMAP.md` | Qué hacer y en qué orden. Contiene el estado actual. |
-| `docs/ARCHITECTURE.md` | Cómo está construido el sistema y por qué. |
-| `docs/RULES.md` | Reglas del juego redactadas por nosotros (se crea en la fase 1). |
-| `docs/decisions/` | Decisiones técnicas (ADR), una por archivo: `NNNN-titulo.md`. |
+| Documento              | Para qué                                                         |
+| ---------------------- | ---------------------------------------------------------------- |
+| `ROADMAP.md`           | Qué hacer y en qué orden. Contiene el estado actual.             |
+| `docs/ARCHITECTURE.md` | Cómo está construido el sistema y por qué.                       |
+| `docs/RULES.md`        | Reglas del juego redactadas por nosotros (se crea en la fase 1). |
+| `docs/decisions/`      | Decisiones técnicas (ADR), una por archivo: `NNNN-titulo.md`.    |
 
 Si el código y estos documentos se contradicen, para y pregunta antes de seguir.
 
@@ -35,7 +35,8 @@ pnpm dev                             # servidor + web en modo desarrollo
 pnpm test                            # todos los tests
 pnpm typecheck                       # tipos en todo el monorepo
 pnpm lint                            # ESLint
-pnpm check                           # typecheck + lint + test (lo que ejecuta la CI)
+pnpm check                           # términos prohibidos + typecheck + lint + test (lo que ejecuta la CI)
+pnpm format                          # Prettier
 pnpm --filter @hexa/engine test      # tests de un paquete
 pnpm sim -- --games 1000             # simulador de partidas (fase 1)
 ```
@@ -43,7 +44,7 @@ pnpm sim -- --games 1000             # simulador de partidas (fase 1)
 ## Reglas de arquitectura (no negociables)
 
 - **El motor es puro.** `packages/engine` no hace I/O, red, `Date.now()` ni `Math.random()`. Todo es `(estado, acción) → resultado`. La aleatoriedad usa un RNG con semilla guardado en el estado.
-- **El servidor es la única autoridad.** Los clientes envían *intenciones* (acciones), nunca estado. El servidor valida con el motor y difunde el resultado.
+- **El servidor es la única autoridad.** Los clientes envían _intenciones_ (acciones), nunca estado. El servidor valida con el motor y difunde el resultado.
 - **Información oculta.** Un cliente solo recibe lo que puede ver. Todo lo que sale hacia un cliente pasa por `getPlayerView()`. Nunca se envía el estado completo.
 - **Protocolo tipado.** Todo mensaje de red se define y valida con Zod en `packages/protocol`. Nada de mensajes ad hoc.
 - **Sin reglas en el front.** La interfaz no decide qué es legal: usa `legalActions()` que llega en la vista del jugador.
@@ -67,4 +68,4 @@ Este es un juego **original** que reutiliza mecánicas de juego, que no están p
 - Archivos en `kebab-case`, componentes React en `PascalCase`.
 - Tests junto al código (`*.test.ts`) con Vitest. E2E en `e2e/` con Playwright.
 - Funciones pequeñas; un archivo por regla o acción en el motor.
-- Comentarios para el *porqué*, no para el *qué*.
+- Comentarios para el _porqué_, no para el _qué_.

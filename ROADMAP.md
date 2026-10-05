@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 0
-- **Última tarea completada:** —
-- **Bloqueos / dudas abiertas:** —
-- **Próximo paso:** 0.1
+- **Fase en curso:** 0 (tareas completadas; falta verificar CI en GitHub)
+- **Última tarea completada:** 0.8
+- **Bloqueos / dudas abiertas:** no hay remoto de GitHub, así que la CI (0.6) está escrita pero sin ejecutar. TypeScript fijado en 6.0 (ver ADR 0001).
+- **Próximo paso:** Fase 1, tarea 1.1
 
 ## Objetivo del MVP publicable
 
@@ -15,12 +15,12 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 ## Hitos
 
-| Hito | Al terminar | Significa |
-|---|---|---|
-| **M1 — Motor completo** | Fase 1 | Se juegan miles de partidas simuladas sin errores. |
-| **M2 — Primera partida real** | Fase 4 | 4 personas juegan con sus móviles en la misma sala. |
-| **M3 — Juego completo** | Fase 6 | Comercio entre jugadores y juego a distancia. |
-| **M4 — Beta pública** | Fase 8 | Publicado con nombre, arte y páginas legales propios. |
+| Hito                          | Al terminar | Significa                                             |
+| ----------------------------- | ----------- | ----------------------------------------------------- |
+| **M1 — Motor completo**       | Fase 1      | Se juegan miles de partidas simuladas sin errores.    |
+| **M2 — Primera partida real** | Fase 4      | 4 personas juegan con sus móviles en la misma sala.   |
+| **M3 — Juego completo**       | Fase 6      | Comercio entre jugadores y juego a distancia.         |
+| **M4 — Beta pública**         | Fase 8      | Publicado con nombre, arte y páginas legales propios. |
 
 ---
 
@@ -28,14 +28,14 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 **Objetivo:** un monorepo limpio donde todo se compila, se prueba y se valida en CI desde el primer día.
 
-- [ ] **0.1** Monorepo con pnpm workspaces y Turborepo: `apps/server`, `apps/web`, `packages/engine`, `packages/protocol`, `packages/theme` (estructura en `docs/ARCHITECTURE.md`).
-- [ ] **0.2** `tsconfig.base.json` estricto compartido; ESLint + Prettier; Vitest en cada paquete.
-- [ ] **0.3** Scripts raíz: `dev`, `build`, `test`, `typecheck`, `lint`, `check`.
-- [ ] **0.4** `.nvmrc` con la versión LTS actual de Node, `.editorconfig`, `.gitignore`, `README.md` breve con cómo arrancar.
-- [ ] **0.5** Esqueletos mínimos: el servidor responde `GET /health`; la web muestra una página de inicio; el motor exporta una función trivial con test.
-- [ ] **0.6** CI en GitHub Actions: `pnpm install --frozen-lockfile` + `pnpm check` en cada push y PR.
-- [ ] **0.7** Comprobación de términos prohibidos en CI (script que falla si encuentra los términos de la sección de propiedad intelectual de `CLAUDE.md`, excluyendo `CLAUDE.md`).
-- [ ] **0.8** Carpeta `docs/decisions/` con los ADR iniciales listados en `docs/ARCHITECTURE.md`.
+- [x] **0.1** Monorepo con pnpm workspaces y Turborepo: `apps/server`, `apps/web`, `packages/engine`, `packages/protocol`, `packages/theme` (estructura en `docs/ARCHITECTURE.md`).
+- [x] **0.2** `tsconfig.base.json` estricto compartido; ESLint + Prettier; Vitest en cada paquete.
+- [x] **0.3** Scripts raíz: `dev`, `build`, `test`, `typecheck`, `lint`, `check`.
+- [x] **0.4** `.nvmrc` con la versión LTS actual de Node, `.editorconfig`, `.gitignore`, `README.md` breve con cómo arrancar.
+- [x] **0.5** Esqueletos mínimos: el servidor responde `GET /health`; la web muestra una página de inicio; el motor exporta una función trivial con test.
+- [x] **0.6** CI en GitHub Actions: `pnpm install --frozen-lockfile` + `pnpm check` en cada push y PR.
+- [x] **0.7** Comprobación de términos prohibidos en CI (script que falla si encuentra los términos de la sección de propiedad intelectual de `CLAUDE.md`, excluyendo `CLAUDE.md`).
+- [x] **0.8** Carpeta `docs/decisions/` con los ADR iniciales listados en `docs/ARCHITECTURE.md`.
 
 **Criterios de aceptación:** `pnpm install && pnpm check` pasa en limpio; CI en verde; `pnpm dev` levanta servidor y web a la vez.
 

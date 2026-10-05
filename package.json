@@ -13,7 +13,9 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "lint": "eslint .",
-    "check": "pnpm typecheck && pnpm lint && pnpm test"
+    "check": "pnpm check:terms && pnpm typecheck && pnpm lint && pnpm test",
+    "check:terms": "node scripts/check-forbidden-terms.mjs",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
