@@ -6,7 +6,7 @@
 
 - **Fase en curso:** 1 completada (hito M1); la siguiente es la Fase 2
 - **Última tarea completada:** 1.16
-- **Bloqueos / dudas abiertas:** la CI de GitHub (0.6) está escrita y subida pero no he podido comprobar que salga en verde (repo privado, sin acceso a la API). Revisar la pestaña Actions. El simulador encontró y corrigió un fallo real (ofertas de comercio abiertas tras un cambio de fase).
+- **Bloqueos / dudas abiertas:** ninguno. La CI de GitHub está en verde y el repo es público. El simulador de la Fase 1 encontró y corrigió un fallo real (ofertas de comercio abiertas tras un cambio de fase).
 - **Próximo paso:** Fase 2, tarea 2.1 (`packages/protocol`)
 
 ## Objetivo del MVP publicable
