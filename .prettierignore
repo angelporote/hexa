@@ -2,7 +2,4 @@ node_modules
 dist
 .turbo
 coverage
-*.log
-.env
-.claude/
-
+pnpm-lock.yaml
