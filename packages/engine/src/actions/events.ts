@@ -2,7 +2,7 @@ import type { HexId } from '../board/hex.js';
 import type { EdgeId, VertexId } from '../board/topology.js';
 import type { ResourceId } from '../board/types.js';
 import type { ResourceCounts } from '../state/resources.js';
-import type { DevCardId, PlayerId } from '../state/types.js';
+import type { DevCardId, PlayerId, TradeOffer } from '../state/types.js';
 
 /** Lo ocurrido, para animaciones y registro. No contiene información oculta de terceros. */
 export type GameEvent =
@@ -45,4 +45,14 @@ export type GameEvent =
       readonly give: ResourceId;
       readonly giveCount: number;
       readonly want: ResourceId;
+    }
+  | { readonly type: 'TRADE_OFFERED'; readonly offer: TradeOffer }
+  | { readonly type: 'TRADE_ACCEPTED'; readonly player: PlayerId; readonly offerId: number }
+  | { readonly type: 'TRADE_REJECTED'; readonly player: PlayerId; readonly offerId: number }
+  | { readonly type: 'TRADE_CANCELLED'; readonly offerId: number }
+  | {
+      readonly type: 'TRADE_COMPLETED';
+      readonly offerId: number;
+      readonly from: PlayerId;
+      readonly with: PlayerId;
     };

@@ -6,6 +6,7 @@ import type { ActionResult } from './outcome.js';
 import { buyDevCard, playArmy, playMonopoly, playPlenty, playRoads } from './dev-cards.js';
 import { discard, moveRobber } from './robber.js';
 import { roll } from './roll.js';
+import { acceptTrade, cancelTrade, confirmTrade, offerTrade, rejectTrade } from './player-trade.js';
 import { endTurn } from './turn.js';
 import { setupBuildRoad, setupBuildSettlement } from './setup.js';
 import type { Action } from './types.js';
@@ -42,6 +43,16 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
       return endTurn(state, player);
     case 'BANK_TRADE':
       return bankTrade(state, player, action.give, action.want);
+    case 'OFFER_TRADE':
+      return offerTrade(state, player, action.to, action.give, action.want);
+    case 'ACCEPT_TRADE':
+      return acceptTrade(state, player, action.offerId);
+    case 'REJECT_TRADE':
+      return rejectTrade(state, player, action.offerId);
+    case 'CANCEL_TRADE':
+      return cancelTrade(state, player, action.offerId);
+    case 'CONFIRM_TRADE':
+      return confirmTrade(state, player, action.offerId, action.with);
     default:
       return err('NOT_IMPLEMENTED');
   }
