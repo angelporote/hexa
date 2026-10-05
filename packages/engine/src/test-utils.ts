@@ -6,6 +6,8 @@ import { createConfig } from './state/config.js';
 import { createGame } from './state/create-game.js';
 import type { GameConfig, GameState, PlayerId } from './state/types.js';
 import { respectsDistanceRule } from './rules/placement.js';
+import { createRng } from './rng/rng.js';
+import { rollDice } from './rules/dice.js';
 
 export const PLAYERS = ['p0', 'p1', 'p2', 'p3'] as const;
 
@@ -48,4 +50,45 @@ export function autoSetup(initial: GameState): GameState {
     state = apply(state, player, { type: 'BUILD_ROAD', edge }).state;
   }
   return state;
+}
+
+export function place(
+  state: GameState,
+  vertex: string,
+  owner: PlayerId,
+  kind: 'settlement' | 'city' = 'settlement',
+): GameState {
+  return { ...state, buildings: { ...state.buildings, [vertex]: { owner, kind } } };
+}
+
+export function setHand(
+  state: GameState,
+  player: PlayerId,
+  hand: Partial<Record<'r1' | 'r2' | 'r3' | 'r4' | 'r5', number>>,
+): GameState {
+  return {
+    ...state,
+    players: state.players.map((p) =>
+      p.id === player ? { ...p, hand: { r1: 0, r2: 0, r3: 0, r4: 0, r5: 0, ...hand } } : p,
+    ),
+  };
+}
+
+/** Sustituye el RNG por uno que producirá exactamente la tirada `total` en el próximo ROLL. */
+export function forceRoll(state: GameState, total: number): GameState {
+  for (let i = 0; i < 10000; i++) {
+    const rng = createRng(`force-${total}-${i}`);
+    const { dice } = rollDice(rng);
+    if (dice[0] + dice[1] === total) return { ...state, rng };
+  }
+  throw new Error(`No se encontró RNG para la tirada ${total}`);
+}
+
+/** Pasa directamente a la fase de tirada del jugador indicado (omite la colocación inicial). */
+export function toRollPhase(state: GameState, player: PlayerId = 'p0'): GameState {
+  return {
+    ...state,
+    phase: { type: 'roll' },
+    turn: { player, number: 1, lastRoll: null, devCardPlayed: false },
+  };
 }

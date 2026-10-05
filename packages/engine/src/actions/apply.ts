@@ -2,6 +2,7 @@ import { err, ok } from '../result.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import type { Action } from './types.js';
 import type { ActionResult } from './outcome.js';
+import { roll } from './roll.js';
 import { setupBuildRoad, setupBuildSettlement } from './setup.js';
 
 function dispatch(state: GameState, player: PlayerId, action: Action): ActionResult {
@@ -12,6 +13,8 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
     case 'BUILD_ROAD':
       if (state.phase.type === 'setup') return setupBuildRoad(state, player, action.edge);
       return err('NOT_IMPLEMENTED');
+    case 'ROLL':
+      return roll(state, player);
     default:
       return err('NOT_IMPLEMENTED');
   }
