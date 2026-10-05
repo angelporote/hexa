@@ -47,7 +47,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 - [x] **1.1** Coordenadas hexagonales axiales. Grafo de vértices y aristas con vértices compartidos deduplicados. Test: el mapa base de 19 hexágonos produce 54 vértices y 72 aristas.
 - [x] **1.2** RNG con semilla (serializable dentro del estado). Test de reproducibilidad: misma semilla, mismo resultado.
-- [ ] **1.3** Mapas como datos (JSON validado): forma, terrenos, fichas numéricas y puertos. Generador aleatorio con semilla para el mapa base, con opción de impedir que las dos fichas más probables queden adyacentes.
+- [x] **1.3** Mapas como datos (JSON validado): forma, terrenos, fichas numéricas y puertos. Generador aleatorio con semilla para el mapa base, con opción de impedir que las dos fichas más probables queden adyacentes.
 - [ ] **1.4** Modelo de estado completo y serializable: jugadores, recursos, piezas restantes, edificios, mazo de desarrollo, banco, ladrón, fase, turno, registro. Ver tipos en `docs/ARCHITECTURE.md`.
 - [ ] **1.5** Fase de colocación inicial en orden de ida y vuelta; la segunda colocación otorga recursos de los terrenos adyacentes.
 - [ ] **1.6** Tirada de dados y producción, incluida la regla de escasez del banco.
