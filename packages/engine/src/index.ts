@@ -7,3 +7,8 @@ export * from './board/types.js';
 export * from './board/map-template.js';
 export * from './board/generator.js';
 export { BASE_MAP } from './board/maps/index.js';
+export * from './actions/types.js';
+export * from './state/types.js';
+export * from './state/resources.js';
+export * from './state/config.js';
+export * from './state/create-game.js';
