@@ -49,7 +49,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 - [x] **1.2** RNG con semilla (serializable dentro del estado). Test de reproducibilidad: misma semilla, mismo resultado.
 - [x] **1.3** Mapas como datos (JSON validado): forma, terrenos, fichas numéricas y puertos. Generador aleatorio con semilla para el mapa base, con opción de impedir que las dos fichas más probables queden adyacentes.
 - [x] **1.4** Modelo de estado completo y serializable: jugadores, recursos, piezas restantes, edificios, mazo de desarrollo, banco, ladrón, fase, turno, registro. Ver tipos en `docs/ARCHITECTURE.md`.
-- [ ] **1.5** Fase de colocación inicial en orden de ida y vuelta; la segunda colocación otorga recursos de los terrenos adyacentes.
+- [x] **1.5** Fase de colocación inicial en orden de ida y vuelta; la segunda colocación otorga recursos de los terrenos adyacentes.
 - [ ] **1.6** Tirada de dados y producción, incluida la regla de escasez del banco.
 - [ ] **1.7** Construcción de caminos, poblados (regla de distancia y conexión) y ciudades; costes; límite de piezas por jugador.
 - [ ] **1.8** El 7: descarte de la mitad para quien supere el límite de cartas, mover el ladrón, robar a un jugador adyacente.
