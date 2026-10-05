@@ -26,3 +26,5 @@ export * from './rules/ports.js';
 export { offerRecipients } from './actions/player-trade.js';
 export * from './scoring/longest-road.js';
 export * from './scoring/awards.js';
+export * from './scoring/points.js';
+export * from './scoring/victory.js';

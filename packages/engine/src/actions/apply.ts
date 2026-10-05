@@ -1,5 +1,6 @@
 import { err, ok } from '../result.js';
 import { updateAwards } from '../scoring/awards.js';
+import { checkVictory } from '../scoring/victory.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import { bankTrade } from './bank-trade.js';
 import { buildCity, buildRoad, buildSettlement } from './build.js';
@@ -75,5 +76,9 @@ export function applyAction(state: GameState, playerId: PlayerId, action: Action
     log: [...result.value.state.log, { player: playerId, action }],
   };
   const awards = updateAwards(logged);
-  return ok({ state: awards.state, events: [...result.value.events, ...awards.events] });
+  const victory = checkVictory(awards.state);
+  return ok({
+    state: victory.state,
+    events: [...result.value.events, ...awards.events, ...victory.events],
+  });
 }

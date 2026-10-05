@@ -61,4 +61,5 @@ export type GameEvent =
       readonly award: 'longestRoad' | 'largestArmy';
       readonly holder: PlayerId | null;
       readonly previous: PlayerId | null;
-    };
+    }
+  | { readonly type: 'GAME_WON'; readonly player: PlayerId; readonly points: number };
