@@ -33,3 +33,15 @@ export function giveFromBank(state: GameState, id: PlayerId, counts: ResourceCou
 export function setupSeat(playerCount: number, index: number): number {
   return index < playerCount ? index : 2 * playerCount - 1 - index;
 }
+
+/** El jugador paga `cost` al banco. El llamador garantiza que la mano lo cubre. */
+export function payToBank(state: GameState, id: PlayerId, cost: ResourceCounts): GameState {
+  const bank = emptyCounts();
+  for (const r of RESOURCE_IDS) bank[r] = state.bank[r] + cost[r];
+  const next = mapPlayer(state, id, (p) => {
+    const hand = emptyCounts();
+    for (const r of RESOURCE_IDS) hand[r] = p.hand[r] - cost[r];
+    return { ...p, hand };
+  });
+  return { ...next, bank };
+}

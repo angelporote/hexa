@@ -7,6 +7,7 @@ import type { PlayerId } from '../state/types.js';
 export type GameEvent =
   | { readonly type: 'SETTLEMENT_BUILT'; readonly player: PlayerId; readonly vertex: VertexId }
   | { readonly type: 'ROAD_BUILT'; readonly player: PlayerId; readonly edge: EdgeId }
+  | { readonly type: 'CITY_BUILT'; readonly player: PlayerId; readonly vertex: VertexId }
   | {
       readonly type: 'RESOURCES_GAINED';
       readonly player: PlayerId;

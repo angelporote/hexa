@@ -1,20 +1,25 @@
 import { err, ok } from '../result.js';
 import type { GameState, PlayerId } from '../state/types.js';
-import type { Action } from './types.js';
+import { buildCity, buildRoad, buildSettlement } from './build.js';
 import type { ActionResult } from './outcome.js';
 import { roll } from './roll.js';
 import { setupBuildRoad, setupBuildSettlement } from './setup.js';
+import type { Action } from './types.js';
 
 function dispatch(state: GameState, player: PlayerId, action: Action): ActionResult {
   switch (action.type) {
-    case 'BUILD_SETTLEMENT':
-      if (state.phase.type === 'setup') return setupBuildSettlement(state, player, action.vertex);
-      return err('NOT_IMPLEMENTED');
-    case 'BUILD_ROAD':
-      if (state.phase.type === 'setup') return setupBuildRoad(state, player, action.edge);
-      return err('NOT_IMPLEMENTED');
     case 'ROLL':
       return roll(state, player);
+    case 'BUILD_SETTLEMENT':
+      return state.phase.type === 'setup'
+        ? setupBuildSettlement(state, player, action.vertex)
+        : buildSettlement(state, player, action.vertex);
+    case 'BUILD_ROAD':
+      return state.phase.type === 'setup'
+        ? setupBuildRoad(state, player, action.edge)
+        : buildRoad(state, player, action.edge);
+    case 'BUILD_CITY':
+      return buildCity(state, player, action.vertex);
     default:
       return err('NOT_IMPLEMENTED');
   }
