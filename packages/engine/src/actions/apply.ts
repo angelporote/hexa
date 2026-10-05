@@ -60,6 +60,13 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
   }
 }
 
+/** Comprueba la legalidad sin calcular bonificaciones ni victoria: barato para enumerar. */
+export function canApply(state: GameState, playerId: PlayerId, action: Action): boolean {
+  if (state.phase.type === 'ended') return false;
+  if (!state.players.some((p) => p.id === playerId)) return false;
+  return dispatch(state, playerId, action).ok;
+}
+
 /**
  * Aplica una acción de un jugador. Nunca muta el estado recibido: devuelve el nuevo estado y
  * los eventos, o un código de error de dominio.

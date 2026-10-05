@@ -28,3 +28,5 @@ export * from './scoring/longest-road.js';
 export * from './scoring/awards.js';
 export * from './scoring/points.js';
 export * from './scoring/victory.js';
+export * from './views/legal-actions.js';
+export * from './views/player-view.js';
