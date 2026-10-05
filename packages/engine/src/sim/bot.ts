@@ -54,16 +54,30 @@ function pick<T>(rng: RngState, items: readonly T[]): { value: T; rng: RngState 
   return { value, rng: step.rng };
 }
 
-/** Bot aleatorio ponderado por tipo de acción. Devuelve `null` si el actor no tiene jugadas. */
+/** Bot aleatorio ponderado: juega por quien toque actuar (`pendingActor`). */
 export function chooseMove(
   state: GameState,
   rng: RngState,
 ): { move: BotMove | null; rng: RngState } {
-  const player = pendingActor(state);
+  return chooseMoveFor(state, pendingActor(state), rng, { offers: true });
+}
+
+/** Bot aleatorio ponderado por tipo de acción. Devuelve `null` si `player` no tiene jugadas. */
+export function chooseMoveFor(
+  state: GameState,
+  player: PlayerId,
+  rng: RngState,
+  options: { readonly offers: boolean } = { offers: true },
+): { move: BotMove | null; rng: RngState } {
   let current = rng;
 
   // De vez en cuando propone un intercambio 1 a 1 para ejercitar el comercio entre jugadores.
-  if (state.phase.type === 'main' && player === state.turn.player && !state.pendingTrade) {
+  if (
+    options.offers &&
+    state.phase.type === 'main' &&
+    player === state.turn.player &&
+    !state.pendingTrade
+  ) {
     const roll = nextInt(current, 1000);
     current = roll.rng;
     const hand = getPlayer(state, player).hand;

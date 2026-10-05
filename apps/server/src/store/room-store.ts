@@ -6,6 +6,8 @@ export interface SeatData {
   readonly name: string;
   readonly color: PlayerColor;
   readonly ready: boolean;
+  /** Asiento controlado por el servidor (siempre «conectado» y listo). */
+  readonly bot: boolean;
   /** Token secreto del asiento: permite recuperar el asiento al reconectar. */
   readonly token: string;
 }

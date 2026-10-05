@@ -5,6 +5,7 @@ import { loadConfig } from './config.js';
 import type { ServerConfig } from './config.js';
 import { silentLogger } from './logger.js';
 import type { Logger } from './logger.js';
+import { BotDriver } from './bots/bot-driver.js';
 import { attachSocketServer } from './net/socket-server.js';
 import { RoomManager } from './rooms/room-manager.js';
 import { createSeed, createToken, randomInt } from './sessions/tokens.js';
@@ -54,7 +55,8 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   if (restored > 0) logger.info({ event: 'rooms_restored', count: restored }, 'salas recuperadas');
 
   const app = buildApp();
-  const io = attachSocketServer(app.server, { manager, config, logger, clock });
+  const { io, deliver } = attachSocketServer(app.server, { manager, config, logger, clock });
+  const bots = new BotDriver(manager, deliver, logger, { delayMs: config.botDelayMs });
 
   const sweeper = setInterval(() => manager.sweep(), config.sweepIntervalMs);
   sweeper.unref();
@@ -64,6 +66,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   });
   app.addHook('onClose', async () => {
     clearInterval(sweeper);
+    bots.stop();
     await io.close();
   });
 

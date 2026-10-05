@@ -62,6 +62,8 @@ export const clientMessageSchemas = {
       message: 'No hay nada que actualizar',
     }),
   'lobby:start': z.object({ protocolVersion }).strict(),
+  'lobby:addBot': z.object({ protocolVersion }).strict(),
+  'lobby:removeBot': z.object({ protocolVersion, playerId: z.string().min(1).max(32) }).strict(),
   'game:action': z.object({ protocolVersion, action: actionSchema }).strict(),
   'session:resume': z
     .object({ protocolVersion, code: roomCodeSchema, token: tokenSchema })
@@ -110,6 +112,8 @@ export const ackSchemas = {
   'room:leave': ack(empty),
   'lobby:update': ack(empty),
   'lobby:start': ack(empty),
+  'lobby:addBot': ack(empty),
+  'lobby:removeBot': ack(empty),
   'game:action': ack(empty),
   'session:resume': ack(sessionData),
 } as const satisfies Record<ClientEventName, z.ZodType>;
@@ -124,6 +128,8 @@ export const seatSchema = z.object({
   color: colorSchema,
   ready: z.boolean(),
   connected: z.boolean(),
+  /** Asiento controlado por el servidor. */
+  bot: z.boolean(),
 });
 export type Seat = z.infer<typeof seatSchema>;
 

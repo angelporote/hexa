@@ -20,7 +20,16 @@ export interface SocketServerDeps {
 /** Tras tantas peticiones rechazadas por límite seguidas, se corta la conexión. */
 const MAX_CONSECUTIVE_RATE_LIMITED = 100;
 
-export function attachSocketServer(httpServer: HttpServer, deps: SocketServerDeps): Server {
+export interface SocketServerHandle {
+  readonly io: Server;
+  /** Entrega mensajes del gestor a sus destinatarios. */
+  readonly deliver: (messages: readonly OutMessage[]) => void;
+}
+
+export function attachSocketServer(
+  httpServer: HttpServer,
+  deps: SocketServerDeps,
+): SocketServerHandle {
   const { manager, config, logger, clock } = deps;
   const io = new Server(httpServer, {
     serveClient: false,
@@ -45,6 +54,10 @@ export function attachSocketServer(httpServer: HttpServer, deps: SocketServerDep
         return manager.updateLobby(socketId, msg.payload);
       case 'lobby:start':
         return manager.start(socketId);
+      case 'lobby:addBot':
+        return manager.addBot(socketId);
+      case 'lobby:removeBot':
+        return manager.removeBot(socketId, msg.payload.playerId);
       case 'game:action':
         return manager.action(socketId, msg.payload.action);
       case 'session:resume':
@@ -120,5 +133,5 @@ export function attachSocketServer(httpServer: HttpServer, deps: SocketServerDep
     });
   });
 
-  return io;
+  return { io, deliver };
 }

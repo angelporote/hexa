@@ -20,6 +20,8 @@ describe('parseClientMessage', () => {
       ['room:leave', { protocolVersion: v }],
       ['lobby:update', { protocolVersion: v, ready: true }],
       ['lobby:start', { protocolVersion: v }],
+      ['lobby:addBot', { protocolVersion: v }],
+      ['lobby:removeBot', { protocolVersion: v, playerId: 'p1' }],
       ['game:action', { protocolVersion: v, action: { type: 'ROLL' } }],
       ['session:resume', { protocolVersion: v, code: 'ABCD', token: 'a'.repeat(32) }],
     ];
@@ -158,7 +160,9 @@ describe('mensajes del servidor y respuestas', () => {
       code: 'ABCD',
       status: 'lobby',
       hostConnected: true,
-      seats: [{ playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true }],
+      seats: [
+        { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
+      ],
       spectators: 0,
       you: { role: 'player', playerId: 'p0' },
     };

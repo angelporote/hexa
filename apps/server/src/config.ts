@@ -6,6 +6,8 @@ export interface ServerConfig {
   /** Una sala sin actividad ni conexiones durante este tiempo se elimina. */
   readonly roomTtlMs: number;
   readonly sweepIntervalMs: number;
+  /** Pausa antes de cada jugada de un bot del servidor. */
+  readonly botDelayMs: number;
   /** Límite de mensajes por socket: cubo con `burst` fichas que se rellena a `perSecond`. */
   readonly rateLimit: { readonly burst: number; readonly perSecond: number };
 }
@@ -27,6 +29,7 @@ export function loadConfig(env: Env): ServerConfig {
     logLevel: env['LOG_LEVEL'] ?? 'info',
     roomTtlMs: int(env['ROOM_TTL_MS'], 6 * 60 * 60 * 1000),
     sweepIntervalMs: int(env['SWEEP_INTERVAL_MS'], 60 * 1000),
+    botDelayMs: int(env['BOT_DELAY_MS'], 700),
     rateLimit: { burst: int(env['RATE_BURST'], 30), perSecond: int(env['RATE_PER_SECOND'], 10) },
   };
 }

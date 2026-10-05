@@ -61,6 +61,7 @@ export class RoomManager {
   private readonly rooms = new Map<string, RoomData>();
   private readonly connections = new Map<ConnectionId, Connection>();
   private readonly byRoom = new Map<string, Set<ConnectionId>>();
+  private readonly listeners: ((code: string) => void)[] = [];
 
   constructor(private readonly deps: RoomManagerDeps) {}
 
@@ -71,6 +72,11 @@ export class RoomManager {
     const saved = await this.deps.store.loadAll();
     for (const room of saved) this.rooms.set(room.code, room);
     return saved.length;
+  }
+
+  /** Avisa de cada cambio en una sala (lo usa el conductor de bots para saber cuándo actuar). */
+  onChange(listener: (code: string) => void): void {
+    this.listeners.push(listener);
   }
 
   get roomCount(): number {
@@ -165,6 +171,7 @@ export class RoomManager {
       name,
       color,
       ready: false,
+      bot: false,
       token: this.deps.token(),
     };
     const next = this.touch(room, {
@@ -322,6 +329,47 @@ export class RoomManager {
     return ok({ data: {}, out: [...this.broadcastState(next), ...this.broadcastViews(next)] });
   }
 
+  /** El host añade un bot al lobby: un asiento controlado por el servidor, siempre listo. */
+  addBot(conn: ConnectionId): ManagerResult<Record<string, never>> {
+    const found = this.require(conn);
+    if (!found.ok) return found;
+    const { room, c } = found.value;
+    if (c.role !== 'host') return err('NOT_HOST');
+    if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
+    if (room.seats.length >= MAX_PLAYERS) return err('ROOM_FULL');
+
+    const names = new Set(room.seats.map((s) => normalizeName(s.name)));
+    let n = 1;
+    while (names.has(normalizeName(`Bot ${n}`))) n++;
+    const color = PLAYER_COLORS.find((x) => !room.seats.some((s) => s.color === x));
+    if (color === undefined) return err('ROOM_FULL');
+    const seat: SeatData = {
+      playerId: `p${room.nextPlayerNumber}`,
+      name: `Bot ${n}`,
+      color,
+      ready: true,
+      bot: true,
+      token: this.deps.token(),
+    };
+    const next = this.touch(room, {
+      seats: [...room.seats, seat],
+      nextPlayerNumber: room.nextPlayerNumber + 1,
+    });
+    return ok({ data: {}, out: this.broadcastState(next) });
+  }
+
+  removeBot(conn: ConnectionId, playerId: PlayerId): ManagerResult<Record<string, never>> {
+    const found = this.require(conn);
+    if (!found.ok) return found;
+    const { room, c } = found.value;
+    if (c.role !== 'host') return err('NOT_HOST');
+    if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
+    const seat = room.seats.find((s) => s.playerId === playerId);
+    if (!seat?.bot) return err('NOT_A_BOT');
+    const next = this.touch(room, { seats: room.seats.filter((s) => s.playerId !== playerId) });
+    return ok({ data: {}, out: this.broadcastState(next) });
+  }
+
   // ── Partida ────────────────────────────────────────────────────────────────────────────
 
   /** El jugador se toma siempre de la conexión, nunca del mensaje: nadie actúa por otro. */
@@ -330,14 +378,33 @@ export class RoomManager {
     if (!found.ok) return found;
     const { room, c } = found.value;
     if (c.role !== 'player' || c.playerId === null) return err('NOT_A_PLAYER');
-    if (!room.game) return err('GAME_NOT_STARTED');
+    return this.applyFor(room, c.playerId, action);
+  }
 
-    const result = applyAction(room.game.snapshot, c.playerId, action);
+  /** Acción de un bot del servidor: solo vale para asientos marcados como bot. */
+  botAction(
+    code: string,
+    playerId: PlayerId,
+    action: Action,
+  ): ManagerResult<Record<string, never>> {
+    const room = this.rooms.get(code);
+    if (!room) return err('ROOM_NOT_FOUND');
+    if (!room.seats.some((s) => s.playerId === playerId && s.bot)) return err('NOT_A_BOT');
+    return this.applyFor(room, playerId, action);
+  }
+
+  private applyFor(
+    room: RoomData,
+    playerId: PlayerId,
+    action: Action,
+  ): ManagerResult<Record<string, never>> {
+    if (!room.game) return err('GAME_NOT_STARTED');
+    const result = applyAction(room.game.snapshot, playerId, action);
     if (!result.ok) {
       this.deps.logger.debug({
         event: 'action_rejected',
         code: room.code,
-        playerId: c.playerId,
+        playerId,
         type: action.type,
         error: result.error,
       });
@@ -398,6 +465,7 @@ export class RoomManager {
     const next: RoomData = { ...room, ...patch, lastActivity: this.deps.clock() };
     this.rooms.set(next.code, next);
     this.persist(next);
+    for (const listener of this.listeners) listener(next.code);
     return next;
   }
 
@@ -437,7 +505,8 @@ export class RoomManager {
         name: s.name,
         color: s.color,
         ready: s.ready,
-        connected: live.some((x) => x.playerId === s.playerId),
+        connected: s.bot || live.some((x) => x.playerId === s.playerId),
+        bot: s.bot,
       })),
       spectators: live.filter((x) => x.role === 'spectator').length,
       you: { role: c.role, playerId: c.playerId },
