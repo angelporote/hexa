@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 5 completada. La 4.8 (móviles reales) sigue abierta; ver `docs/devices.md`
-- **Última tarea completada:** 5.4
-- **Bloqueos / dudas abiertas:** la prueba con 4 móviles reales a la vez (M2) y los criterios de comercio «con 4 móviles» siguen sin hacerse a mano; están cubiertos por tests de red con 4 clientes (los tests E2E con Playwright llegan en la 7.6) y por una prueba en navegador contra bots. En redes tipo `alumnos 3` los móviles no ven el ordenador: usar una zona Wi-Fi.
-- **Próximo paso:** Fase 6 (juego a distancia y espectadores). Pendiente en paralelo: terminar la lista de comprobación de `docs/devices.md` con 4 móviles (criterio M2).
+- **Fase en curso:** 6 completada. Siguen abiertas la 4.8 (móviles reales) y la prueba con personas del hito M3
+- **Última tarea completada:** 6.4
+- **Bloqueos / dudas abiertas:** M3 («2 jugadores en la sala y 2 remotos») está cubierto por tests de red con clientes reales y por una prueba en navegador (escritorio + móvil emulado + espectador), pero no con personas en dispositivos distintos. Dos pestañas del mismo navegador comparten asiento (la sesión va en `localStorage`): para probar varios jugadores en una máquina, usar `localhost` y `127.0.0.1` o navegadores distintos.
+- **Próximo paso:** Fase 7 (robustez y calidad), empezando por Redis (7.1). En paralelo: probar con personas en dispositivos distintos (M2, M3).
 
 ## Objetivo del MVP publicable
 
@@ -129,10 +129,10 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 ## Fase 6 — Juego a distancia y espectadores
 
-- [ ] **6.1** Partida sin pantalla compartida: cualquier jugador puede crear la sala desde su navegador.
-- [ ] **6.2** Vista combinada para escritorio (tablero + mano) y pestaña «tablero» en el mando móvil para jugadores remotos.
-- [ ] **6.3** Espectadores que ven solo información pública.
-- [ ] **6.4** Mezcla de jugadores presenciales (con host) y remotos en la misma sala.
+- [x] **6.1** Partida sin pantalla compartida: cualquier jugador puede crear la sala desde su navegador.
+- [x] **6.2** Vista combinada para escritorio (tablero + mano) y pestaña «tablero» en el mando móvil para jugadores remotos.
+- [x] **6.3** Espectadores que ven solo información pública.
+- [x] **6.4** Mezcla de jugadores presenciales (con host) y remotos en la misma sala.
 
 **Criterios de aceptación (M3):** partida con 2 jugadores en la sala y 2 remotos, completada sin incidencias.
 

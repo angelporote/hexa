@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { MIN_PLAYERS_TO_START } from '@hexa/protocol';
 import type { RoomState } from '@hexa/protocol';
 import { playerColor } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import { useConnection } from '../net/provider.js';
+import { AdminControls } from '../components/AdminControls.js';
 import { QrCode } from './QrCode.js';
 
 type AckLike = { ok: boolean; error?: string };
@@ -16,14 +16,6 @@ export function Lobby({ room }: { room: RoomState }) {
 
   const joinUrl = useMemo(() => `${window.location.origin}/join?code=${room.code}`, [room.code]);
   const seats = room.seats;
-  const everyoneReady = seats.length > 0 && seats.every((s) => s.ready);
-  const canStart = seats.length >= MIN_PLAYERS_TO_START && everyoneReady;
-  const hint =
-    seats.length < MIN_PLAYERS_TO_START
-      ? t('lobby.needPlayers', { min: MIN_PLAYERS_TO_START })
-      : everyoneReady
-        ? null
-        : t('lobby.needReady');
 
   const run = async (action: () => Promise<AckLike>) => {
     const ack = await action();
@@ -83,27 +75,10 @@ export function Lobby({ room }: { room: RoomState }) {
           })}
         </ul>
 
-        <div className="lobby-actions">
-          <button
-            type="button"
-            className="btn"
-            disabled={seats.length >= 4}
-            onClick={() => void run(() => connection.request('lobby:addBot'))}
-          >
-            {t('lobby.addBot')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={!canStart}
-            onClick={() => void run(() => connection.request('lobby:start'))}
-          >
-            {t('lobby.start')}
-          </button>
-        </div>
-        {(problem ?? hint) && (
-          <p className={problem ? 'error' : 'muted'} role={problem ? 'alert' : undefined}>
-            {problem ?? hint}
+        <AdminControls room={room} />
+        {problem && (
+          <p className="error" role="alert">
+            {problem}
           </p>
         )}
       </section>

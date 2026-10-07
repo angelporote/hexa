@@ -71,7 +71,15 @@ export class RoomManager {
   /** Recupera las salas del almacén al arrancar. */
   async hydrate(): Promise<number> {
     const saved = await this.deps.store.loadAll();
-    for (const room of saved) this.rooms.set(room.code, room);
+    // Las salas guardadas antes de existir el juego a distancia no traen estos campos.
+    for (const room of saved) {
+      const legacy = room as RoomData & { hostless?: boolean; ownerId?: string | null };
+      this.rooms.set(room.code, {
+        ...room,
+        hostless: legacy.hostless ?? false,
+        ownerId: legacy.ownerId ?? null,
+      });
+    }
     return saved.length;
   }
 
@@ -116,7 +124,14 @@ export class RoomManager {
 
   // ── Salas, roles y sesiones ────────────────────────────────────────────────────────────
 
-  createRoom(conn: ConnectionId): ManagerResult<SessionData> {
+  /**
+   * Crea una sala. Con `role: 'host'` quien la crea es la pantalla principal; con `'player'` es
+   * un jugador que juega a distancia y administra la sala (sin pantalla principal).
+   */
+  createRoom(
+    conn: ConnectionId,
+    options: { role: 'host' | 'player'; name?: string; color?: PlayerColor } = { role: 'host' },
+  ): ManagerResult<SessionData> {
     if (this.connections.has(conn)) return err('ALREADY_IN_ROOM');
     const code = generateRoomCode((c) => this.rooms.has(c), this.deps.randomInt);
     if (code === null) {
@@ -124,23 +139,42 @@ export class RoomManager {
       return err('SERVER_ERROR');
     }
     const now = this.deps.clock();
+    const remote = options.role === 'player';
+    const seat: SeatData | null = remote
+      ? {
+          playerId: 'p0',
+          name: (options.name ?? '').trim(),
+          color: options.color ?? PLAYER_COLORS[0],
+          ready: false,
+          bot: false,
+          token: this.deps.token(),
+        }
+      : null;
     const room: RoomData = {
       code,
       createdAt: now,
       lastActivity: now,
       status: 'lobby',
       hostToken: this.deps.token(),
-      seats: [],
+      hostless: remote,
+      ownerId: seat?.playerId ?? null,
+      seats: seat ? [seat] : [],
       spectatorTokens: [],
-      nextPlayerNumber: 0,
+      nextPlayerNumber: seat ? 1 : 0,
       game: null,
     };
     this.rooms.set(code, room);
     this.persist(room);
-    this.attach({ id: conn, code, role: 'host', playerId: null, token: room.hostToken });
-    this.deps.logger.info({ event: 'room_created', code }, 'sala creada');
+    if (seat) {
+      this.attach({ id: conn, code, role: 'player', playerId: seat.playerId, token: seat.token });
+    } else {
+      this.attach({ id: conn, code, role: 'host', playerId: null, token: room.hostToken });
+    }
+    this.deps.logger.info({ event: 'room_created', code, remote }, 'sala creada');
     return ok({
-      data: { code, token: room.hostToken, role: 'host', playerId: null },
+      data: seat
+        ? { code, token: seat.token, role: 'player', playerId: seat.playerId }
+        : { code, token: room.hostToken, role: 'host', playerId: null },
       out: this.broadcastState(room),
     });
   }
@@ -183,6 +217,7 @@ export class RoomManager {
     const next = this.touch(room, {
       seats: [...room.seats, seat],
       nextPlayerNumber: room.nextPlayerNumber + 1,
+      ownerId: room.hostless && room.ownerId === null ? seat.playerId : room.ownerId,
     });
     this.attach({
       id: conn,
@@ -254,7 +289,11 @@ export class RoomManager {
     // En el lobby, un jugador que se va libera su asiento; en partida lo conserva (puede volver).
     let patch: Partial<RoomData> = {};
     if (c.role === 'player' && room.status === 'lobby') {
-      patch = { seats: room.seats.filter((s) => s.playerId !== c.playerId) };
+      const seats = room.seats.filter((s) => s.playerId !== c.playerId);
+      patch = { seats };
+      if (room.ownerId === c.playerId) {
+        patch = { ...patch, ownerId: seats.find((x) => !x.bot)?.playerId ?? null };
+      }
     } else if (c.role === 'spectator') {
       patch = { spectatorTokens: room.spectatorTokens.filter((t) => t !== c.token) };
     }
@@ -316,7 +355,7 @@ export class RoomManager {
     const found = this.require(conn);
     if (!found.ok) return found;
     const { room, c } = found.value;
-    if (c.role !== 'host') return err('NOT_HOST');
+    if (!this.isAdmin(room, c)) return err('NOT_HOST');
     if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
     if (room.seats.length < MIN_PLAYERS_TO_START) return err('NOT_ENOUGH_PLAYERS');
     if (!room.seats.every((s) => s.ready)) return err('PLAYERS_NOT_READY');
@@ -340,7 +379,7 @@ export class RoomManager {
     const found = this.require(conn);
     if (!found.ok) return found;
     const { room, c } = found.value;
-    if (c.role !== 'host') return err('NOT_HOST');
+    if (!this.isAdmin(room, c)) return err('NOT_HOST');
     if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
     if (room.seats.length >= MAX_PLAYERS) return err('ROOM_FULL');
 
@@ -368,7 +407,7 @@ export class RoomManager {
     const found = this.require(conn);
     if (!found.ok) return found;
     const { room, c } = found.value;
-    if (c.role !== 'host') return err('NOT_HOST');
+    if (!this.isAdmin(room, c)) return err('NOT_HOST');
     if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
     const seat = room.seats.find((s) => s.playerId === playerId);
     if (!seat?.bot) return err('NOT_A_BOT');
@@ -474,6 +513,11 @@ export class RoomManager {
 
   // ── Internos ───────────────────────────────────────────────────────────────────────────
 
+  /** Administra la sala: la pantalla principal o, sin ella, el jugador que la creó. */
+  private isAdmin(room: RoomData, c: Connection): boolean {
+    return c.role === 'host' || (c.role === 'player' && room.ownerId === c.playerId);
+  }
+
   private require(conn: ConnectionId): Result<{ room: RoomData; c: Connection }, ErrorCode> {
     const c = this.connections.get(conn);
     const room = c ? this.rooms.get(c.code) : undefined;
@@ -535,6 +579,7 @@ export class RoomManager {
       code: room.code,
       status: room.status,
       hostConnected: live.some((x) => x.role === 'host'),
+      hostless: room.hostless,
       seats: room.seats.map((s) => ({
         playerId: s.playerId,
         name: s.name,
@@ -544,7 +589,7 @@ export class RoomManager {
         bot: s.bot,
       })),
       spectators: live.filter((x) => x.role === 'spectator').length,
-      you: { role: c.role, playerId: c.playerId },
+      you: { role: c.role, playerId: c.playerId, admin: this.isAdmin(room, c) },
     };
   }
 

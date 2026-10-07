@@ -29,6 +29,10 @@ export interface RoomData {
   readonly lastActivity: number;
   readonly status: RoomStatus;
   readonly hostToken: string;
+  /** Sala creada por un jugador a distancia: no tiene pantalla principal. */
+  readonly hostless: boolean;
+  /** Jugador que administra una sala sin pantalla principal (`null` si no aplica). */
+  readonly ownerId: PlayerId | null;
   readonly seats: readonly SeatData[];
   readonly spectatorTokens: readonly string[];
   readonly nextPlayerNumber: number;

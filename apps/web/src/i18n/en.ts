@@ -116,6 +116,33 @@ export const en: Record<MessageKey, string> = {
   'ctl.ended.lose': 'The game is over. {player} wins.',
   'notFound.text': 'This page does not exist.',
 
+  'home.create': 'Play remotely (create a room)',
+  'home.watch': 'Watch a game',
+
+  'create.title': 'Create a remote game',
+  'create.help':
+    'Create a room and share the link. No shared screen needed: everyone plays from their own browser.',
+  'create.submit': 'Create room',
+  'create.creating': 'Creating…',
+
+  'watch.title': 'Watch a game',
+  'watch.help': 'Join as a spectator with the room code. You will only see what is public.',
+  'watch.submit': 'Watch',
+  'watch.waiting': 'Waiting for the game to start…',
+
+  'share.title': 'Invite',
+  'share.help': 'Send this link to anyone who wants to play.',
+  'share.link': 'Room link',
+  'share.copy': 'Copy link',
+  'share.copied': 'Copied',
+  'share.share': 'Share',
+
+  'play.lobby.waitingOwner': 'Waiting for whoever created the room to start the game…',
+  'ctl.tabs': 'Controller sections',
+  'ctl.tab.play': 'Controls',
+  'ctl.tab.board': 'Board',
+  'ctl.tab.attention': 'Needs your attention',
+
   'conn.connecting': 'Connecting to the server…',
   'conn.reconnecting': 'Connection lost. Retrying…',
   'conn.offline': 'No connection to the server',
@@ -201,7 +228,7 @@ export const en: Record<MessageKey, string> = {
   'err.ROOM_FULL': 'The room is full.',
   'err.NAME_TAKEN': 'That name is already taken in the room.',
   'err.COLOR_TAKEN': 'That color is already taken.',
-  'err.NOT_HOST': 'Only the main screen can do that.',
+  'err.NOT_HOST': 'Only the room administrator can do that.',
   'err.NOT_ENOUGH_PLAYERS': 'Not enough players to start.',
   'err.PLAYERS_NOT_READY': 'All players must be ready.',
   'err.GAME_ALREADY_STARTED': 'The game has already started.',

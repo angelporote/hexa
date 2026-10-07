@@ -176,8 +176,11 @@ export class GameConnection {
     return parsed.data as Ack<K>;
   }
 
-  async createRoom(): Promise<Ack<'room:create'>> {
-    const ack = await this.request('room:create');
+  /** Sin opciones crea una sala con pantalla principal; con `role: 'player'`, una sala a distancia. */
+  async createRoom(
+    options: { role: 'player'; name: string; color?: string } | undefined = undefined,
+  ): Promise<Ack<'room:create'>> {
+    const ack = await this.request('room:create', options ?? {});
     if (ack.ok) this.adopt(ack.data);
     return ack;
   }
@@ -189,6 +192,14 @@ export class GameConnection {
       name,
       ...(color ? { color } : {}),
     });
+    if (ack.ok) this.adopt(ack.data);
+    return ack;
+  }
+
+  /** Entra como espectador (solo información pública); deja antes la sala anterior si la había. */
+  async watch(code: string): Promise<Ack<'room:join'>> {
+    if (this.snapshot.session && this.snapshot.session.code !== code) await this.leave();
+    const ack = await this.request('room:join', { code, role: 'spectator' });
     if (ack.ok) this.adopt(ack.data);
     return ack;
   }

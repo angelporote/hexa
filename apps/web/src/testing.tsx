@@ -81,13 +81,14 @@ export function roomOf(
     code: 'ABCD',
     status,
     hostConnected: true,
+    hostless: false,
     seats: [
       { playerId: 'p0', name: 'Ana', color: 'c1', ready: true, connected: true, bot: false },
       { playerId: 'p1', name: 'Luis', color: 'c2', ready: true, connected: true, bot: true },
       { playerId: 'p2', name: 'Marta', color: 'c3', ready: true, connected: false, bot: false },
     ],
     spectators: 0,
-    you: { role: 'host', playerId: null },
+    you: { role: 'host', playerId: null, admin: true },
     ...over,
   };
 }

@@ -59,6 +59,8 @@ export function tradeRoom(
     lastActivity: 1,
     status: 'playing',
     hostToken: tokens['host'] ?? '',
+    hostless: false,
+    ownerId: null,
     seats,
     spectatorTokens: [],
     nextPlayerNumber: 4,

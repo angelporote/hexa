@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Action, PlayerView } from '@hexa/engine';
 import type { PreviewTarget } from '@hexa/protocol';
 import { playerColor } from '@hexa/theme';
@@ -27,6 +28,7 @@ export function PlacementPanel({
   kind,
   infos,
   remaining,
+  boardSlot,
   onCancel,
   onDone,
 }: {
@@ -35,6 +37,11 @@ export function PlacementPanel({
   infos: ReadonlyMap<string, PlayerInfo>;
   /** Caminos gratis que quedan por colocar (carta de caminos). */
   remaining?: number | null;
+  /**
+   * Dónde dibujar el tablero. Sin valor, dentro del propio panel; con un elemento (pantalla ancha),
+   * en ese hueco, junto al mando; con `null`, todavía no está disponible.
+   */
+  boardSlot?: HTMLElement | null | undefined;
   /** Si se omite, la elección es obligatoria y no hay botón de cancelar. */
   onCancel?: () => void;
   onDone?: () => void;
@@ -101,6 +108,26 @@ export function PlacementPanel({
     }
   };
 
+  const boardElement = (
+    <ZoomableBoard
+      board={view.board}
+      buildings={view.buildings}
+      roads={view.roads}
+      robber={view.robber}
+      colorOf={(id) => infos.get(id)?.color ?? 'c1'}
+      locale={locale}
+      label={t('app.name')}
+      interaction={{
+        ...(vertices ? { vertices } : {}),
+        ...(edges ? { edges } : {}),
+        ...(hexes ? { hexes } : {}),
+        selected,
+        color,
+        onPick: pick,
+      }}
+    />
+  );
+
   return (
     <section className="placement">
       <p className="instruction">
@@ -108,23 +135,11 @@ export function PlacementPanel({
           ? t('ctl.place.roadFree', { n: remaining })
           : t(HELP[kind])}
       </p>
-      <ZoomableBoard
-        board={view.board}
-        buildings={view.buildings}
-        roads={view.roads}
-        robber={view.robber}
-        colorOf={(id) => infos.get(id)?.color ?? 'c1'}
-        locale={locale}
-        label={t('app.name')}
-        interaction={{
-          ...(vertices ? { vertices } : {}),
-          ...(edges ? { edges } : {}),
-          ...(hexes ? { hexes } : {}),
-          selected,
-          color,
-          onPick: pick,
-        }}
-      />
+      {boardSlot === undefined
+        ? boardElement
+        : boardSlot
+          ? createPortal(boardElement, boardSlot)
+          : null}
 
       {victims.length > 1 && (
         <div className="victims" role="group" aria-label={t('ctl.victim.choose')}>

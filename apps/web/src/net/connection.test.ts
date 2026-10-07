@@ -20,9 +20,10 @@ const roomState = {
   code: 'ABCD',
   status: 'lobby',
   hostConnected: true,
+  hostless: false,
   seats: [],
   spectators: 0,
-  you: { role: 'host', playerId: null },
+  you: { role: 'host', playerId: null, admin: true },
 };
 
 describe('GameConnection', () => {

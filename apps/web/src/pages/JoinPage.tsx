@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  MAX_NAME_LENGTH,
-  PLAYER_COLORS,
-  ROOM_CODE_ALPHABET,
-  ROOM_CODE_LENGTH,
-} from '@hexa/protocol';
+import { MAX_NAME_LENGTH, PLAYER_COLORS, ROOM_CODE_LENGTH } from '@hexa/protocol';
 import { playerColors } from '@hexa/theme';
 import { ConnectionBanner } from '../components/ConnectionBanner.js';
 import { LanguageSwitch } from '../components/LanguageSwitch.js';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
 import { useConnection, useSnapshot } from '../net/provider.js';
+import { cleanCode } from './clean-code.js';
+import { savedName, saveName } from './saved-name.js';
 
 const COLOR_LABELS: Record<(typeof PLAYER_COLORS)[number], MessageKey> = {
   c1: 'color.c1',
@@ -20,24 +17,6 @@ const COLOR_LABELS: Record<(typeof PLAYER_COLORS)[number], MessageKey> = {
   c3: 'color.c3',
   c4: 'color.c4',
 };
-
-const NAME_KEY = 'hexa.playerName';
-
-function savedName(): string {
-  try {
-    return localStorage.getItem(NAME_KEY) ?? '';
-  } catch {
-    return '';
-  }
-}
-
-/** Normaliza lo que se escribe como código: mayúsculas y solo letras válidas, máximo 4. */
-export function cleanCode(raw: string): string {
-  return [...raw.toUpperCase()]
-    .filter((c) => ROOM_CODE_ALPHABET.includes(c))
-    .slice(0, ROOM_CODE_LENGTH)
-    .join('');
-}
 
 /** Unirse a una sala desde el móvil: código (o QR), nombre y color. */
 export function JoinPage() {
@@ -72,11 +51,7 @@ export function JoinPage() {
     const ack = await connection.join(code, trimmed, color ?? undefined);
     setBusy(false);
     if (!ack.ok) return setProblem(error(ack.error));
-    try {
-      localStorage.setItem(NAME_KEY, trimmed);
-    } catch {
-      // Sin almacenamiento: simplemente no se recuerda el nombre.
-    }
+    saveName(trimmed);
     navigate(`/play/${code}`);
   };
 

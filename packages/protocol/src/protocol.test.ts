@@ -189,11 +189,12 @@ describe('mensajes del servidor y respuestas', () => {
       code: 'ABCD',
       status: 'lobby',
       hostConnected: true,
+      hostless: false,
       seats: [
         { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
       ],
       spectators: 0,
-      you: { role: 'player', playerId: 'p0' },
+      you: { role: 'player', playerId: 'p0', admin: false },
     };
     expect(roomStateSchema.safeParse(room).success).toBe(true);
     expect(roomStateSchema.safeParse({ ...room, status: 'otro' }).success).toBe(false);

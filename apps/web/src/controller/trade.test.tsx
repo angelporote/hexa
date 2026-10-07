@@ -40,7 +40,7 @@ function snapshotFor(state: GameState, player: string): ConnectionSnapshot {
     status: 'connected',
     resuming: false,
     session: { code: 'ABCD', token: 'x'.repeat(24), role: 'player', playerId: player },
-    room: roomOf('playing', { you: { role: 'player', playerId: player } }),
+    room: roomOf('playing', { you: { role: 'player', playerId: player, admin: false } }),
     view,
     seq: 30,
     events: [],

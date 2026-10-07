@@ -18,6 +18,12 @@ export function HomePage() {
         <Link className="btn btn-lg" to="/join">
           {t('home.join')}
         </Link>
+        <Link className="btn btn-lg" to="/create">
+          {t('home.create')}
+        </Link>
+        <Link className="btn btn-lg" to="/watch">
+          {t('home.watch')}
+        </Link>
       </div>
     </main>
   );

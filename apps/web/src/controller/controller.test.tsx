@@ -24,7 +24,9 @@ function snapshotFor(view: PlayerView): ConnectionSnapshot {
       role: 'player',
       playerId: view.you?.id ?? null,
     },
-    room: roomOf('playing', { you: { role: 'player', playerId: view.you?.id ?? null } }),
+    room: roomOf('playing', {
+      you: { role: 'player', playerId: view.you?.id ?? null, admin: false },
+    }),
     view,
     seq: 20,
     events: [],
@@ -517,7 +519,7 @@ describe('unirse y sala de espera desde el móvil', () => {
       transport.emit(
         'room:state',
         roomOf('lobby', {
-          you: { role: 'player', playerId: 'p0' },
+          you: { role: 'player', playerId: 'p0', admin: false },
           seats: [
             { playerId: 'p0', name: 'Ana', color: 'c2', ready: false, connected: true, bot: false },
           ],
@@ -566,7 +568,7 @@ describe('unirse y sala de espera desde el móvil', () => {
       transport.emit(
         'room:state',
         roomOf('lobby', {
-          you: { role: 'player', playerId: 'p0' },
+          you: { role: 'player', playerId: 'p0', admin: false },
           seats: [
             { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
             { playerId: 'p1', name: 'Luis', color: 'c2', ready: true, connected: true, bot: true },
@@ -603,7 +605,10 @@ describe('unirse y sala de espera desde el móvil', () => {
     await waitFor(() => expect(transport.sent.length).toBeGreaterThan(0));
     const view = getPlayerView(setupGame(), 'p0');
     act(() => {
-      transport.emit('room:state', roomOf('playing', { you: { role: 'player', playerId: 'p0' } }));
+      transport.emit(
+        'room:state',
+        roomOf('playing', { you: { role: 'player', playerId: 'p0', admin: false } }),
+      );
       transport.emit('game:view', { seq: 7, view });
     });
     expect(await screen.findByRole('button', { name: 'Tirar los dados' })).toBeTruthy();

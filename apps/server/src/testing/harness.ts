@@ -94,11 +94,13 @@ export class TestClient {
     return new Promise((resolve) => this.socket.emit(event, payload, resolve));
   }
 
-  async createRoom(): Promise<string> {
-    const r = await this.request('room:create');
+  /** Crea una sala; con `{ role: 'player', name }` la crea un jugador a distancia (sin pantalla). */
+  async createRoom(extra: Record<string, unknown> = {}): Promise<string> {
+    const r = await this.request('room:create', extra);
     if (!r.ok) throw new Error(`room:create falló: ${r.error}`);
     this.code = r.data['code'] as string;
     this.token = r.data['token'] as string;
+    this.playerId = (r.data['playerId'] as string | null | undefined) ?? null;
     return this.code;
   }
 

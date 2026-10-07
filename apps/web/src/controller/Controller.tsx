@@ -3,6 +3,8 @@ import type { PlayerView } from '@hexa/engine';
 import { useI18n } from '../i18n/index.js';
 import type { ConnectionSnapshot } from '../net/connection.js';
 import { phaseText } from '../host/phase-text.js';
+import { EventLog } from '../host/EventLog.js';
+import { PlayersPanel } from '../host/PlayersPanel.js';
 import { nameOf, playerInfos } from '../host/players.js';
 import { ActionPanel } from './ActionPanel.js';
 import type { HomeChoice } from './ActionPanel.js';
@@ -15,6 +17,8 @@ import { OfferCard } from './OfferCard.js';
 import { PlacementPanel } from './PlacementPanel.js';
 import { TradeComposer } from './TradeComposer.js';
 import { StatusBar } from './StatusBar.js';
+import { TableBoard, TableView } from './TableView.js';
+import { WIDE_QUERY, useMediaQuery } from './use-media-query.js';
 import { useTurnVibration, useWakeLock } from './hooks.js';
 
 /** Mando del jugador durante la partida: mano privada, botones legales y colocación en el tablero. */
@@ -22,11 +26,23 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
   const { t } = useI18n();
   const infos = useMemo(() => playerInfos(snapshot.room, view), [snapshot.room, view]);
   const [choice, setChoice] = useState<HomeChoice | null>(null);
+  const [tab, setTab] = useState<'play' | 'board'>('play');
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  const wide = useMediaQuery(WIDE_QUERY);
 
   const you = view.you;
   const myTurn = isMyTurn(view);
   const forced = forcedMode(view);
   const ended = view.phase.type === 'ended';
+
+  // Algo que requiere tu atención: tu turno, una elección obligatoria o una oferta dirigida a ti.
+  const offer = view.pendingTrade;
+  const offerForMe =
+    !!offer && !!you && offer.from !== you.id && (offer.to === null || offer.to.includes(you.id));
+  const attention = !ended && (myTurn || forced !== null || offerForMe);
+  useEffect(() => {
+    if (attention) setTab('play');
+  }, [attention]);
 
   useWakeLock(!ended);
   useTurnVibration(myTurn && !ended);
@@ -44,6 +60,17 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
   const name = (id: string) => nameOf(infos, id);
   const close = () => setChoice(null);
 
+  // En pantalla ancha el tablero de la colocación se dibuja en el hueco de la izquierda.
+  const boardSlot = wide ? slot : undefined;
+  const placing =
+    !ended &&
+    (forced?.kind === 'settlement' ||
+      forced?.kind === 'road' ||
+      forced?.kind === 'robber' ||
+      (myTurn &&
+        forced === null &&
+        (choice === 'road' || choice === 'settlement' || choice === 'city')));
+
   let panel;
   if (ended) {
     panel = (
@@ -56,11 +83,19 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
   } else if (forced?.kind === 'discard') {
     panel = <DiscardPanel view={view} owed={forced.owed} />;
   } else if (forced?.kind === 'settlement') {
-    panel = <PlacementPanel view={view} kind="settlement" infos={infos} />;
+    panel = <PlacementPanel boardSlot={boardSlot} view={view} kind="settlement" infos={infos} />;
   } else if (forced?.kind === 'road') {
-    panel = <PlacementPanel view={view} kind="road" infos={infos} remaining={forced.remaining} />;
+    panel = (
+      <PlacementPanel
+        boardSlot={boardSlot}
+        view={view}
+        kind="road"
+        infos={infos}
+        remaining={forced.remaining}
+      />
+    );
   } else if (forced?.kind === 'robber') {
-    panel = <PlacementPanel view={view} kind="robber" infos={infos} />;
+    panel = <PlacementPanel boardSlot={boardSlot} view={view} kind="robber" infos={infos} />;
   } else if (!myTurn) {
     panel =
       choice === 'counter' && view.pendingTrade ? (
@@ -81,7 +116,14 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
       );
   } else if (choice === 'road' || choice === 'settlement' || choice === 'city') {
     panel = (
-      <PlacementPanel view={view} kind={choice} infos={infos} onCancel={close} onDone={close} />
+      <PlacementPanel
+        boardSlot={boardSlot}
+        view={view}
+        kind={choice}
+        infos={infos}
+        onCancel={close}
+        onDone={close}
+      />
     );
   } else if (choice === 'bank') {
     panel = <BankPanel view={view} onCancel={close} onDone={close} />;
@@ -102,12 +144,62 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
     );
   }
 
-  return (
-    <div className="controller">
-      <StatusBar view={view} infos={infos} myTurn={myTurn} />
+  const status = <StatusBar view={view} infos={infos} myTurn={myTurn} />;
+  const body = (
+    <>
       <main className="controller-main">{panel}</main>
       <Hand you={you} />
       <CostsSheet />
+    </>
+  );
+
+  if (wide) {
+    return (
+      <div className="controller controller-wide">
+        <section className="pane-board">
+          {placing ? (
+            <div ref={setSlot} className="board-slot" />
+          ) : (
+            <TableBoard view={view} snapshot={snapshot} infos={infos} />
+          )}
+        </section>
+        <aside className="pane-side">
+          {status}
+          {body}
+          <PlayersPanel view={view} infos={infos} />
+          <EventLog events={snapshot.events} nameOf={name} />
+        </aside>
+      </div>
+    );
+  }
+
+  return (
+    <div className="controller">
+      {status}
+      <div className="tabs" role="tablist" aria-label={t('ctl.tabs')}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'play'}
+          className={tab === 'play' ? 'tab active' : 'tab'}
+          onClick={() => setTab('play')}
+        >
+          {t('ctl.tab.play')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'board'}
+          className={tab === 'board' ? 'tab active' : 'tab'}
+          onClick={() => setTab('board')}
+        >
+          {t('ctl.tab.board')}
+          {attention && tab === 'board' && (
+            <span className="dot" aria-label={t('ctl.tab.attention')} />
+          )}
+        </button>
+      </div>
+      {tab === 'play' ? body : <TableView view={view} snapshot={snapshot} infos={infos} />}
     </div>
   );
 }

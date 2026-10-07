@@ -45,7 +45,11 @@ export function attachSocketServer(
   const dispatch = (socketId: string, msg: ClientMessage): ManagerResult<unknown> => {
     switch (msg.event) {
       case 'room:create':
-        return manager.createRoom(socketId);
+        return manager.createRoom(socketId, {
+          role: msg.payload.role ?? 'host',
+          ...(msg.payload.name !== undefined ? { name: msg.payload.name } : {}),
+          ...(msg.payload.color !== undefined ? { color: msg.payload.color } : {}),
+        });
       case 'room:join':
         return manager.join(socketId, msg.payload);
       case 'room:leave':

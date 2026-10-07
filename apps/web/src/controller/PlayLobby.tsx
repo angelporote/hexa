@@ -4,7 +4,9 @@ import type { RoomState } from '@hexa/protocol';
 import { playerColor, playerColors } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
+import { AdminControls } from '../components/AdminControls.js';
 import { useConnection } from '../net/provider.js';
+import { ShareRoom } from './ShareRoom.js';
 
 const COLOR_LABELS: Record<(typeof PLAYER_COLORS)[number], MessageKey> = {
   c1: 'color.c1',
@@ -32,6 +34,7 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
   return (
     <div className="play-lobby">
       <h1 className="room-code room-code-sm">{room.code}</h1>
+      {room.hostless && <ShareRoom code={room.code} />}
 
       <label className="field">
         <span>{t('play.lobby.name')}</span>
@@ -81,7 +84,10 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
           {problem}
         </p>
       )}
-      <p className="muted">{t('play.lobby.waiting')}</p>
+      {room.you.admin && <AdminControls room={room} />}
+      <p className="muted">
+        {room.hostless ? t('play.lobby.waitingOwner') : t('play.lobby.waiting')}
+      </p>
 
       <h2>{t('play.lobby.others')}</h2>
       <ul className="seat-list">
@@ -101,6 +107,17 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
               <span className={seat.ready ? 'tag tag-ok' : 'tag'}>
                 {seat.ready ? t('lobby.ready') : t('lobby.notReady')}
               </span>
+              {seat.bot && room.you.admin && (
+                <button
+                  type="button"
+                  className="link-btn"
+                  onClick={() =>
+                    void connection.request('lobby:removeBot', { playerId: seat.playerId })
+                  }
+                >
+                  {t('lobby.removeBot')}
+                </button>
+              )}
             </li>
           );
         })}

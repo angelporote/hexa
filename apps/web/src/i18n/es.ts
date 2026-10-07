@@ -114,6 +114,33 @@ export const es = {
   'ctl.ended.lose': 'La partida ha terminado. Gana {player}.',
   'notFound.text': 'Esta página no existe.',
 
+  'home.create': 'Jugar a distancia (crear sala)',
+  'home.watch': 'Ver una partida',
+
+  'create.title': 'Crear partida a distancia',
+  'create.help':
+    'Crea una sala y comparte el enlace. No hace falta una pantalla común: cada persona juega desde su navegador.',
+  'create.submit': 'Crear sala',
+  'create.creating': 'Creando…',
+
+  'watch.title': 'Ver una partida',
+  'watch.help': 'Entra como espectador con el código de la sala. Solo verás lo que es público.',
+  'watch.submit': 'Mirar',
+  'watch.waiting': 'Esperando a que empiece la partida…',
+
+  'share.title': 'Invitar',
+  'share.help': 'Envía este enlace a quien quiera jugar.',
+  'share.link': 'Enlace de la sala',
+  'share.copy': 'Copiar enlace',
+  'share.copied': 'Copiado',
+  'share.share': 'Compartir',
+
+  'play.lobby.waitingOwner': 'Esperando a que quien creó la sala empiece la partida…',
+  'ctl.tabs': 'Secciones del mando',
+  'ctl.tab.play': 'Mando',
+  'ctl.tab.board': 'Tablero',
+  'ctl.tab.attention': 'Requiere tu atención',
+
   'conn.connecting': 'Conectando con el servidor…',
   'conn.reconnecting': 'Conexión perdida. Reintentando…',
   'conn.offline': 'Sin conexión con el servidor',
@@ -199,7 +226,7 @@ export const es = {
   'err.ROOM_FULL': 'La sala está llena.',
   'err.NAME_TAKEN': 'Ese nombre ya está en uso en la sala.',
   'err.COLOR_TAKEN': 'Ese color ya está cogido.',
-  'err.NOT_HOST': 'Solo la pantalla principal puede hacer eso.',
+  'err.NOT_HOST': 'Solo quien administra la sala puede hacer eso.',
   'err.NOT_ENOUGH_PLAYERS': 'Faltan jugadores para empezar.',
   'err.PLAYERS_NOT_READY': 'Todos los jugadores deben estar listos.',
   'err.GAME_ALREADY_STARTED': 'La partida ya ha empezado.',

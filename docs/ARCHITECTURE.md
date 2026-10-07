@@ -151,7 +151,7 @@ El simulador (`pnpm sim`) vive en `packages/engine/src/sim` y su CLI en `scripts
 
 ## Protocolo (`packages/protocol`)
 
-Mensajes cliente → servidor: `room:create`, `room:join`, `room:leave`, `lobby:update`, `lobby:addBot`, `lobby:removeBot`, `lobby:start`, `game:action`, `game:preview`, `session:resume`.
+Mensajes cliente → servidor: `room:create` (con `role: 'player'` crea una sala a distancia sin pantalla principal), `room:join`, `room:leave`, `lobby:update`, `lobby:addBot`, `lobby:removeBot`, `lobby:start`, `game:action`, `game:preview`, `session:resume`.
 
 Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions`), `game:events`, `game:preview` (lo que elige el jugador de turno, efímero), `error`.
 

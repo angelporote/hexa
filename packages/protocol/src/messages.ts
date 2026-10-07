@@ -41,7 +41,20 @@ export type PreviewTarget = z.infer<typeof previewTargetSchema>;
 // ── Cliente → servidor ───────────────────────────────────────────────────────────────────
 
 export const clientMessageSchemas = {
-  'room:create': z.object({ protocolVersion }).strict(),
+  // Sin `role` (o con `host`) crea una sala con pantalla principal; con `player` la crea un
+  // jugador desde su navegador (juego a distancia) y queda como su administrador.
+  'room:create': z
+    .object({
+      protocolVersion,
+      role: z.enum(['host', 'player']).optional(),
+      name: playerNameSchema.optional(),
+      color: colorSchema.optional(),
+    })
+    .strict()
+    .refine((m) => m.role !== 'player' || m.name !== undefined, {
+      message: 'Un jugador necesita nombre',
+      path: ['name'],
+    }),
   'room:join': z
     .object({
       protocolVersion,
@@ -145,9 +158,12 @@ export const roomStateSchema = z.object({
   code: roomCodeSchema,
   status: z.enum(['lobby', 'playing', 'ended']),
   hostConnected: z.boolean(),
+  /** Sala a distancia: creada por un jugador, sin pantalla principal. */
+  hostless: z.boolean(),
   seats: z.array(seatSchema).max(4),
   spectators: z.number().int().min(0),
-  you: z.object({ role: roleSchema, playerId: z.string().nullable() }),
+  /** `admin`: puede añadir bots y empezar la partida (la pantalla principal o el creador a distancia). */
+  you: z.object({ role: roleSchema, playerId: z.string().nullable(), admin: z.boolean() }),
 });
 export type RoomState = z.infer<typeof roomStateSchema>;
 
