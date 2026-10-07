@@ -40,10 +40,19 @@ export class TurnTimer {
       () => {
         this.timers.delete(code);
         const result = this.manager.expireClock(code, clock.deadline);
-        if (result.ok) this.deliver(result.value.out);
-        else this.logger.debug({ event: 'turn_timeout_skipped', code, error: result.error });
+        if (result.ok) {
+          this.deliver(result.value.out);
+          return;
+        }
+        // Node calcula el plazo desde un reloj del bucle de eventos que puede ir atrasado unos
+        // milisegundos respecto a `Date.now()`, así que el temporizador puede saltar antes de que
+        // la sala llegue a su hora. Si el plazo sigue vigente se vuelve a armar con lo que falte;
+        // si el reloj cambió o ya no existe, `check` arma el nuevo o no hace nada.
+        this.logger.debug({ event: 'turn_timeout_rearm', code, error: result.error });
+        this.check(code);
       },
-      Math.max(0, clock.deadline - this.clock()),
+      // Mínimo de 1 ms: un plazo ya cumplido no debe entrar en un bucle de reintentos inmediatos.
+      Math.max(1, clock.deadline - this.clock()),
     );
     timer.unref();
     this.timers.set(code, { deadline: clock.deadline, timer });

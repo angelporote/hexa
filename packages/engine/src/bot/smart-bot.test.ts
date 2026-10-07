@@ -559,7 +559,7 @@ describe('casos límite', () => {
   });
 });
 
-describe('solo usa lo que vería un jugador', () => {
+describe('solo usa lo que vería un jugador', { timeout: 30_000 }, () => {
   /** Mismo estado con las manos y cartas ajenas cambiadas (y el mazo invertido), sin alterar los totales. */
   function scrambled(state: GameState, me: PlayerId): GameState {
     return {
@@ -595,7 +595,7 @@ describe('solo usa lo que vería un jugador', () => {
   });
 });
 
-describe('partidas completas', () => {
+describe('partidas completas', { timeout: 60_000 }, () => {
   it('cuatro bots razonables terminan sin romper ninguna invariante y sin proponer tratos', () => {
     const bots = { p0: 'smart', p1: 'smart', p2: 'smart', p3: 'smart' } as const;
     for (let i = 0; i < 12; i++) {

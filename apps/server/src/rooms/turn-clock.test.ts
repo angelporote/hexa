@@ -384,6 +384,41 @@ describe('TurnTimer con el conductor de bots', () => {
     bots.stop();
   });
 
+  it('si el temporizador dispara unos milisegundos antes que el reloj de la sala, se vuelve a armar', () => {
+    // Node calcula el plazo desde un reloj del bucle que puede ir atrasado respecto a `Date.now()`:
+    // el temporizador salta y la sala todavía no ha llegado a su hora. No debe perderse el plazo.
+    const { manager, code, advance, now } = startedRoom(30);
+    const delivered: OutMessage[] = [];
+    const timer = new TurnTimer(manager, (out) => void delivered.push(...out), silentLogger, now);
+    timer.checkAll();
+
+    advance(30 * UNIT - 5); // el reloj de la sala va 5 ms por detrás del temporizador
+    vi.advanceTimersByTime(30 * UNIT);
+    expect(seatOf(manager, code, 'p0')?.auto).toBe(false); // todavía no vence
+
+    advance(5);
+    vi.advanceTimersByTime(5);
+    expect(seatOf(manager, code, 'p0')?.auto).toBe(true);
+    expect(stateMsg(delivered, 'a')?.seats[0]).toMatchObject({ playerId: 'p0', auto: true });
+    timer.stop();
+  });
+
+  it('un plazo que cambió mientras esperaba no sustituye a nadie y se arma el nuevo', () => {
+    const { manager, code, advance, now } = startedRoom(30);
+    const timer = new TurnTimer(manager, () => undefined, silentLogger, now);
+    timer.checkAll();
+    // la jugada reinicia el reloj antes de que venza el anterior
+    advance(20 * UNIT);
+    must(manager.action('a', firstLegal(manager, code, 'p0')));
+    advance(10 * UNIT);
+    vi.advanceTimersByTime(30 * UNIT);
+    expect(seatOf(manager, code, 'p0')?.auto).toBe(false);
+    advance(20 * UNIT);
+    vi.advanceTimersByTime(20 * UNIT);
+    expect(seatOf(manager, code, 'p0')?.auto).toBe(true);
+    timer.stop();
+  });
+
   it('el reloj se reinicia con cada acción: quien juega con normalidad no es sustituido', () => {
     const { manager, code, timer, bots } = wired(10);
     for (let i = 0; i < 4; i++) {
