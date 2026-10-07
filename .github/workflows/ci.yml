@@ -20,6 +20,8 @@ jobs:
           --health-retries 10
     env:
       REDIS_URL: redis://localhost:6379
+      # Falla si los tests no ven el Redis: así no pueden saltarse en silencio.
+      REQUIRE_REDIS: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

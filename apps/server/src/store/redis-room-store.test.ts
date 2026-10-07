@@ -44,6 +44,13 @@ if (redisUrl) {
   });
 }
 
+// En la CI la variable es obligatoria: sin ella el contrato contra Redis real se saltaría en
+// silencio y un verde no probaría nada (ya pasó: Turbo filtra las variables no declaradas).
+it.runIf(process.env['REQUIRE_REDIS'] === '1')('la CI tiene un Redis real para probar', () => {
+  expect(redisUrl).toBeTruthy();
+  expect(backends.map((b) => b.name)).toContain('Redis real');
+});
+
 const lobby = (code: string): RoomData => ({
   ...tradeRoom({}).room,
   code,
