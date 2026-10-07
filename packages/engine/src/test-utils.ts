@@ -6,6 +6,7 @@ import { createConfig } from './state/config.js';
 import { createGame } from './state/create-game.js';
 import type { GameConfig, GameState, PlayerId } from './state/types.js';
 import { respectsDistanceRule } from './rules/placement.js';
+import type { EdgeId, VertexId } from './board/topology.js';
 import { createRng } from './rng/rng.js';
 import { rollDice } from './rules/dice.js';
 
@@ -128,4 +129,96 @@ export function findChain(
     if (found) return found;
   }
   throw new Error(`No hay cadena de ${length} aristas`);
+}
+
+// ── Estados preparados a mano para los tests del bot ─────────────────────────────────────
+
+type Hand = Parameters<typeof setHand>[2];
+
+/** Fase principal del turno de `p0` tras la colocación inicial, con las manos indicadas. */
+export function mainState(
+  hands: Readonly<Record<PlayerId, Hand>> = {},
+  playerCount = 3,
+  seed = 'bot-tests',
+): GameState {
+  let state = autoSetup(newGame(playerCount, seed));
+  state = {
+    ...state,
+    phase: { type: 'main' },
+    turn: { player: 'p0', number: 6, lastRoll: [3, 4], devCardPlayed: false },
+  };
+  for (const [id, hand] of Object.entries(hands)) state = setHand(state, id, hand);
+  return state;
+}
+
+/** Camino de aristas entre dos vértices pasando solo por vértices sin edificio ajeno. */
+function pathBetween(state: GameState, from: VertexId, to: VertexId, player: PlayerId): EdgeId[] {
+  const { vertexById, edgeById } = state.board.topology;
+  const previous = new Map<VertexId, { vertex: VertexId; edge: EdgeId }>();
+  const queue: VertexId[] = [from];
+  const seen = new Set<VertexId>([from]);
+  while (queue.length > 0) {
+    const current = queue.shift() ?? '';
+    if (current === to) break;
+    for (const edge of vertexById[current]?.edges ?? []) {
+      const ends = edgeById[edge]?.vertices ?? ['', ''];
+      const next = ends[0] === current ? ends[1] : ends[0];
+      if (seen.has(next)) continue;
+      const building = state.buildings[next];
+      if (building && building.owner !== player) continue;
+      seen.add(next);
+      previous.set(next, { vertex: current, edge });
+      queue.push(next);
+    }
+  }
+  const path: EdgeId[] = [];
+  for (let at = to; at !== from;) {
+    const step = previous.get(at);
+    if (!step) throw new Error('sin camino');
+    path.unshift(step.edge);
+    at = step.vertex;
+  }
+  return path;
+}
+
+/**
+ * Da a `player` los caminos necesarios para que exista al menos un vértice donde poblar y lo
+ * devuelve junto con ese vértice. El vértice más cercano libre que cumple la regla de distancia.
+ */
+export function withSettlementSpot(
+  state: GameState,
+  player: PlayerId,
+): { state: GameState; spot: VertexId } {
+  const mine = Object.entries(state.buildings)
+    .filter(([, b]) => b.owner === player)
+    .map(([v]) => v);
+  const from = mine[0];
+  if (!from) throw new Error('el jugador no tiene edificios');
+  let best: { spot: VertexId; path: EdgeId[] } | null = null;
+  for (const v of state.board.topology.vertices) {
+    if (state.buildings[v.id] || !respectsDistanceRule(state, v.id)) continue;
+    let path: EdgeId[];
+    try {
+      path = pathBetween(state, from, v.id, player);
+    } catch {
+      continue;
+    }
+    if (!best || path.length < best.path.length) best = { spot: v.id, path };
+  }
+  if (!best) throw new Error('no hay sitio donde poblar');
+  const owned = best.path.filter((e) => !state.roads[e]);
+  return { state: giveRoads(state, player, owned), spot: best.spot };
+}
+
+/** Coloca `count` poblados más de `player` (los primeros vértices libres que lo permiten). */
+export function withBuildings(state: GameState, player: PlayerId, count: number): GameState {
+  let next = state;
+  let placed = 0;
+  for (const v of state.board.topology.vertices) {
+    if (placed >= count) break;
+    if (next.buildings[v.id] || !respectsDistanceRule(next, v.id)) continue;
+    next = place(next, v.id, player);
+    placed++;
+  }
+  return next;
 }

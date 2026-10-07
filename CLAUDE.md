@@ -39,6 +39,7 @@ pnpm check                           # términos prohibidos + pureza del motor +
 pnpm format                          # Prettier
 pnpm --filter @hexa/engine test      # tests de un paquete
 pnpm sim -- --games 1000             # simulador de partidas (bots aleatorios + invariantes)
+pnpm sim -- --games 200 --bots mixed # un bot razonable contra tres aleatorios (también: smart, random)
 ```
 
 ## Reglas de arquitectura (no negociables)

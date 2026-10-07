@@ -1,4 +1,4 @@
-import { chooseMoveFor, createRng } from '@hexa/engine';
+import { chooseSmartMove, createRng } from '@hexa/engine';
 import type { GameState, PlayerId } from '@hexa/engine';
 import type { Logger } from '../logger.js';
 import type { OutMessage, RoomManager } from '../rooms/room-manager.js';
@@ -13,9 +13,10 @@ export interface BotDriverOptions {
 const MAX_FAILURES = 3;
 
 /**
- * Juega por los asientos de bot. Se activa con cada cambio de una sala: si le toca actuar a un
- * bot, programa una jugada tras una pausa. Las jugadas son deterministas respecto al estado:
- * la semilla del bot sale de la de la partida y del número de acciones ya aplicadas.
+ * Juega por los asientos de bot y por los jugadores sustituidos. Se activa con cada cambio de una
+ * sala: si le toca actuar a un bot, programa una jugada tras una pausa. Usa el bot razonable del
+ * motor (ADR 0014). Las jugadas son deterministas respecto al estado: la semilla del bot sale de
+ * la de la partida y del número de acciones ya aplicadas.
  */
 export class BotDriver {
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -82,7 +83,7 @@ export class BotDriver {
     if (bot === null) return;
 
     const rng = createRng(`bot:${room.game?.seed ?? ''}:${state.log.length}`);
-    const { move } = chooseMoveFor(state, bot, rng, { offers: false });
+    const { move } = chooseSmartMove(state, bot, rng);
     if (!move) {
       this.fail(code, `el bot ${bot} no tiene jugadas en la fase ${state.phase.type}`);
       return;

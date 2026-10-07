@@ -68,7 +68,8 @@ hexa/
 │  │     ├─ scoring/         puntos, ejército, camino más largo
 │  │     ├─ rng/             RNG con semilla
 │  │     ├─ views/           getPlayerView, legalActions
-│  │     └─ sim/             bots y simulador de partidas
+│  │     ├─ bot/             bot razonable (puntúa las jugadas legales; ADR 0014)
+│  │     └─ sim/             bot aleatorio y simulador de partidas
 │  ├─ protocol/              esquemas Zod y tipos de mensajes
 │  └─ theme/                 nombres, colores e iconos de la temática
 ├─ assets/                   arte original + LICENSES.md
@@ -172,6 +173,10 @@ Las peticiones del cliente reciben una respuesta (ack) `{ ok: true, data } | { o
 Cada sala guarda `seed + config + lista de acciones`. Como el motor es determinista, reaplicar las acciones reconstruye exactamente la partida. Esto permite reproducir bugs, sobrevivir a reinicios y, más adelante, repeticiones de partidas. Se guarda además una instantánea del estado para no tener que reaplicarlo todo en cada carga.
 
 El gestor mantiene las salas en memoria y las escribe en un `RoomStore` tras cada cambio sin esperar. Con `REDIS_URL` el almacén es `RedisRoomStore` (una clave JSON por sala con caducidad) envuelto en `WriteBehindStore`, que junta las escrituras, reintenta si Redis cae y vuelca lo pendiente al apagar; sin `REDIS_URL` se usa memoria (desarrollo). Detalles en el ADR 0012.
+
+## Bots
+
+Hay dos, ambos funciones puras del estado. El **bot aleatorio** (`sim/bot.ts`) ejercita el motor en el simulador. El **bot razonable** (`bot/smart-bot.ts`, ADR 0014) es el que juega en el servidor, por los asientos de bot y por los jugadores sustituidos: puntúa cada acción de `legalActions` con reglas sencillas (valor de los vértices, objetivos de construcción, descarte, ladrón, comercio con el banco) y solo lee lo que vería un jugador.
 
 ## Temporizador de turno y bot sustituto
 

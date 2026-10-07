@@ -4,7 +4,8 @@ import { createConfig } from '../state/config.js';
 import { createGame } from '../state/create-game.js';
 import type { GameConfig, GameState, PlayerId } from '../state/types.js';
 import { totalPoints } from '../scoring/points.js';
-import { chooseMove } from './bot.js';
+import { chooseSmartMove } from '../bot/smart-bot.js';
+import { chooseMoveFor, pendingActor } from './bot.js';
 import { checkInvariants } from './invariants.js';
 
 export interface GameReport {
@@ -18,16 +19,21 @@ export interface GameReport {
   readonly violations: readonly string[];
 }
 
+/** `random`: bot aleatorio ponderado (ejercita el motor). `smart`: bot razonable (ADR 0014). */
+export type BotKind = 'random' | 'smart';
+
 export interface SimulateOptions {
   /** Pasos máximos (acciones) antes de dar la partida por atascada. */
   readonly maxSteps: number;
   /** Comprobar las invariantes cada N pasos (1 = en cada paso). */
   readonly checkEvery: number;
+  /** Qué bot juega cada asiento; los que no aparezcan usan el aleatorio. */
+  readonly bots?: Readonly<Record<PlayerId, BotKind>>;
 }
 
 export const DEFAULT_SIMULATE_OPTIONS: SimulateOptions = { maxSteps: 20000, checkEvery: 1 };
 
-/** Juega una partida completa con bots aleatorios y comprueba invariantes en el camino. */
+/** Juega una partida completa con bots y comprueba invariantes en el camino. */
 export function simulateGame(
   seed: string,
   playerCount = 4,
@@ -46,7 +52,11 @@ export function simulateGame(
   for (const p of initial) fail(`inicial: ${p}`);
 
   while (state.phase.type !== 'ended' && steps < options.maxSteps && violations.length === 0) {
-    const { move, rng } = chooseMove(state, botRng);
+    const actor = pendingActor(state);
+    const { move, rng } =
+      options.bots?.[actor] === 'smart'
+        ? chooseSmartMove(state, actor, botRng)
+        : chooseMoveFor(state, actor, botRng, { offers: true });
     botRng = rng;
     if (!move) {
       fail(`sin jugadas legales en la fase ${state.phase.type}`);

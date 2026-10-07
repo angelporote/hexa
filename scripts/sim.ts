@@ -1,17 +1,33 @@
-// Simulador de partidas: bots aleatorios juegan N partidas completas comprobando invariantes.
+// Simulador de partidas: bots juegan N partidas completas comprobando invariantes.
 // Uso: pnpm sim -- --games 1000 [--players 2|3|4] [--seed prefijo] [--check-every N]
+//                  [--bots random|smart|mixed]
+// random: todos aleatorios (por defecto). smart: todos razonables. mixed: p0 razonable, el resto aleatorios.
 import { simulateGame } from '@hexa/engine';
-import type { GameReport } from '@hexa/engine';
+import type { BotKind, GameReport } from '@hexa/engine';
+
+type BotMode = 'random' | 'smart' | 'mixed';
 
 interface Args {
   games: number;
   players: number | null;
   seed: string;
   checkEvery: number;
+  bots: BotMode;
+}
+
+const IDS = ['p0', 'p1', 'p2', 'p3'];
+
+function botsFor(mode: BotMode, players: number): Record<string, BotKind> {
+  return Object.fromEntries(
+    IDS.slice(0, players).map((id, i): [string, BotKind] => [
+      id,
+      mode === 'smart' || (mode === 'mixed' && i === 0) ? 'smart' : 'random',
+    ]),
+  );
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { games: 100, players: null, seed: 'sim', checkEvery: 1 };
+  const args: Args = { games: 100, players: null, seed: 'sim', checkEvery: 1, bots: 'random' };
   const rest = argv.filter((a) => a !== '--');
   for (let i = 0; i < rest.length; i += 2) {
     const key = rest[i];
@@ -21,7 +37,12 @@ function parseArgs(argv: string[]): Args {
     else if (key === '--players') args.players = Number(value);
     else if (key === '--seed') args.seed = value;
     else if (key === '--check-every') args.checkEvery = Number(value);
-    else throw new Error(`Argumento desconocido: ${key}`);
+    else if (key === '--bots') {
+      if (value !== 'random' && value !== 'smart' && value !== 'mixed') {
+        throw new Error('--bots debe ser random, smart o mixed');
+      }
+      args.bots = value;
+    } else throw new Error(`Argumento desconocido: ${key}`);
   }
   if (!Number.isInteger(args.games) || args.games < 1)
     throw new Error('--games debe ser un entero ≥ 1');
@@ -40,6 +61,7 @@ for (let i = 0; i < args.games; i++) {
   const report = simulateGame(`${args.seed}-${i}`, players, {
     maxSteps: 20000,
     checkEvery: args.checkEvery,
+    bots: botsFor(args.bots, players),
   });
   reports.push(report);
   if (report.winner) wins[report.winner] = (wins[report.winner] ?? 0) + 1;

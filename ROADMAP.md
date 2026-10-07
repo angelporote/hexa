@@ -5,9 +5,9 @@
 > Claude Code actualiza esta sección al final de cada sesión.
 
 - **Fase en curso:** 7 (robustez y calidad). Siguen abiertas la 4.8 (móviles reales) y la prueba con personas de los hitos M2 y M3
-- **Última tarea completada:** 7.2
+- **Última tarea completada:** 7.3
 - **Bloqueos / dudas abiertas:** M3 («2 jugadores en la sala y 2 remotos») está cubierto por tests de red con clientes reales y por una prueba en navegador (escritorio + móvil emulado + espectador), pero no con personas en dispositivos distintos. El test del almacén contra un Redis real solo corre en la CI (en esta máquina no hay Redis ni Docker; en local se usa un cliente en memoria con el mismo contrato). Dos pestañas del mismo navegador comparten asiento (la sesión va en `localStorage`): para probar varios jugadores en una máquina, usar `localhost` y `127.0.0.1` o navegadores distintos.
-- **Próximo paso:** 7.3 (bot razonable, no aleatorio: también lo usa el sustituto de 7.2). En paralelo: probar con personas en dispositivos distintos (M2, M3).
+- **Próximo paso:** 7.4 (accesibilidad: colores distinguibles con daltonismo y tamaños táctiles). En paralelo: probar con personas en dispositivos distintos (M2, M3).
 
 ## Objetivo del MVP publicable
 
@@ -142,7 +142,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 - [x] **7.1** `RoomStore` con Redis: las salas sobreviven a un reinicio del servidor (estado reconstruible desde semilla + acciones).
 - [x] **7.2** Temporizador de turno opcional; jugador ausente → bot sustituto hasta que vuelva.
-- [ ] **7.3** Bot básico razonable (no aleatorio) para rellenar huecos y para tests.
+- [x] **7.3** Bot básico razonable (no aleatorio) para rellenar huecos y para tests.
 - [ ] **7.4** Accesibilidad: colores de jugador distinguibles con daltonismo (formas o patrones además del color), tamaños táctiles adecuados.
 - [ ] **7.5** Sonidos y feedback visual pulido.
 - [ ] **7.6** Tests E2E con Playwright: un host y 4 mandos en contextos de navegador distintos.

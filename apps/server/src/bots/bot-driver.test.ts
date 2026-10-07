@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { applyAction, chooseSmartMove, createGame, createRng } from '@hexa/engine';
 import { TestClient, startTestServer, until } from '../testing/harness.js';
 import type { TestServer } from '../testing/harness.js';
 import { replayGame } from '../rooms/replay.js';
@@ -79,6 +80,30 @@ describe('bots del servidor', () => {
     if (!game) throw new Error('sin partida');
     expect(replayGame(game)).toEqual(game.snapshot);
     expect(game.snapshot.log.length).toBe(host.seq);
+  }, 120_000);
+
+  it('cada jugada de los bots es la del bot razonable para ese estado y esa semilla', async () => {
+    server = await startTestServer({ seed: () => 'smart-driver-seed', config: { botDelayMs: 0 } });
+    const host = await connect();
+    const code = await host.createRoom();
+    for (let i = 0; i < 4; i++) await host.request('lobby:addBot');
+    await until(() => host.state?.seats.length === 4, 2000, 'cuatro bots');
+    expect(await host.request('lobby:start')).toEqual({ ok: true, data: {} });
+    await until(() => host.view?.phase.type === 'ended', 90_000, 'fin de la partida');
+
+    const game = server.handle.manager.getRoom(code)?.game;
+    if (!game) throw new Error('sin partida');
+    let state = createGame(game.config, game.seed);
+    game.actions.forEach((entry, i) => {
+      const { move } = chooseSmartMove(state, entry.player, createRng(`bot:${game.seed}:${i}`));
+      expect(move?.action, `jugada ${i} de ${entry.player}`).toEqual(entry.action);
+      const next = applyAction(state, entry.player, entry.action);
+      if (!next.ok) throw new Error(`la jugada ${i} falla: ${next.error}`);
+      state = next.value.state;
+    });
+    expect(state).toEqual(game.snapshot);
+    // el bot razonable no negocia con jugadores
+    expect(game.actions.some((e) => e.action.type === 'OFFER_TRADE')).toBe(false);
   }, 120_000);
 
   it('un humano y tres bots: el bot responde a la fase de descarte y no bloquea la partida', async () => {
