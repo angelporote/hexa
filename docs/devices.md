@@ -44,6 +44,9 @@ Abre `http://<IP-del-ordenador>:5173/host` en la pantalla grande (con la IP, no 
 
 ### Incidencias
 
-| Fecha | Dispositivo / navegador | Qué ocurre                                  | Estado |
-| ----- | ----------------------- | ------------------------------------------- | ------ |
-| —     | —                       | Aún no se ha probado en dispositivos reales | —      |
+| Fecha      | Dispositivo / navegador                                                          | Qué ocurre                                                                                                                                                   | Estado                                                  |
+| ---------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| 2026-10-07 | Un móvil real (modelo y navegador sin anotar), Wi-Fi compartida desde otro móvil | Unirse por QR y jugar una partida: «va perfecto», sin incidencias                                                                                            | Correcto                                                |
+| 2026-10-07 | Mismo móvil, Wi-Fi `alumnos 3` (red de centro educativo)                         | La página no carga: la red no deja que los dispositivos se vean entre sí (en el ordenador solo se veía la puerta de enlace). No es un fallo de la aplicación | Evitar esa red; usar una zona Wi-Fi o una red doméstica |
+
+Pendiente: el resto de la lista de comprobación (bloquear/desbloquear, Wake Lock, vibración, pellizcar, rotar, varios móviles a la vez y iOS Safari).
