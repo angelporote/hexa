@@ -22,6 +22,7 @@ function snapshotWith(
     room: roomOf('playing'),
     view,
     seq: 10,
+    clock: null,
     events: [],
     diceRoll: null,
     preview: null,
@@ -225,7 +226,15 @@ describe('<Lobby />', () => {
       ...room,
       seats: [
         ...room.seats,
-        { playerId: 'p3', name: 'Eva', color: 'c4', ready: true, connected: true, bot: false },
+        {
+          playerId: 'p3',
+          name: 'Eva',
+          color: 'c4',
+          ready: true,
+          connected: true,
+          bot: false,
+          auto: false,
+        },
       ],
     });
     expect((screen.getByRole('button', { name: 'Añadir bot' }) as HTMLButtonElement).disabled).toBe(

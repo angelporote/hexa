@@ -50,6 +50,7 @@ export function tradeRoom(
       color: (['c1', 'c2', 'c3', 'c4'] as const)[i] ?? 'c1',
       ready: true,
       bot: false,
+      auto: false,
       token: tokens[id] ?? '',
     };
   });
@@ -61,6 +62,7 @@ export function tradeRoom(
     hostToken: tokens['host'] ?? '',
     hostless: false,
     ownerId: null,
+    turnTimerSeconds: null,
     seats,
     spectatorTokens: [],
     nextPlayerNumber: 4,

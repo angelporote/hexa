@@ -22,6 +22,7 @@ export type ProtocolError =
   | 'HOST_ALREADY_PRESENT'
   | 'SESSION_REPLACED'
   | 'NOT_A_BOT'
+  | 'NO_CLOCK'
   | 'SERVER_ERROR';
 
 export type ErrorCode = ProtocolError | RuleError;

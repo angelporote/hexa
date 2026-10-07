@@ -23,6 +23,7 @@ const roomState = {
   hostless: false,
   seats: [],
   spectators: 0,
+  options: { turnTimerSeconds: null },
   you: { role: 'host', playerId: null, admin: true },
 };
 

@@ -90,7 +90,7 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
       </main>
 
       <aside className="sidebar">
-        <PlayersPanel view={view} infos={infos} />
+        <PlayersPanel view={view} infos={infos} clock={snapshot.clock} />
         {view.pendingTrade && (
           <section className="host-offer" aria-label={t('trade.title')}>
             <h2>{t('trade.title')}</h2>

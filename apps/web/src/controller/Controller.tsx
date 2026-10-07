@@ -17,6 +17,7 @@ import { OfferCard } from './OfferCard.js';
 import { PlacementPanel } from './PlacementPanel.js';
 import { TradeComposer } from './TradeComposer.js';
 import { StatusBar } from './StatusBar.js';
+import { SubstituteBanner } from './SubstituteBanner.js';
 import { TableBoard, TableView } from './TableView.js';
 import { WIDE_QUERY, useMediaQuery } from './use-media-query.js';
 import { useTurnVibration, useWakeLock } from './hooks.js';
@@ -144,7 +145,12 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
     );
   }
 
-  const status = <StatusBar view={view} infos={infos} myTurn={myTurn} />;
+  const status = (
+    <>
+      <StatusBar view={view} infos={infos} myTurn={myTurn} clock={snapshot.clock} />
+      {infos.get(you.id)?.auto === true && <SubstituteBanner />}
+    </>
+  );
   const body = (
     <>
       <main className="controller-main">{panel}</main>
@@ -166,7 +172,7 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
         <aside className="pane-side">
           {status}
           {body}
-          <PlayersPanel view={view} infos={infos} />
+          <PlayersPanel view={view} infos={infos} clock={snapshot.clock} />
           <EventLog events={snapshot.events} nameOf={name} />
         </aside>
       </div>

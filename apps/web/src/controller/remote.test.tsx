@@ -37,7 +37,15 @@ function lobbyRoom(over: Partial<RoomState> = {}): RoomState {
     hostless: true,
     you: { role: 'player', playerId: 'p0', admin: true },
     seats: [
-      { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
+      {
+        playerId: 'p0',
+        name: 'Ana',
+        color: 'c1',
+        ready: false,
+        connected: true,
+        bot: false,
+        auto: false,
+      },
     ],
     ...over,
   });
@@ -120,8 +128,24 @@ describe('sala de espera a distancia', () => {
   it('quien administra ve el enlace para invitar, añade bots, los quita y empieza', async () => {
     const room = lobbyRoom({
       seats: [
-        { playerId: 'p0', name: 'Ana', color: 'c1', ready: true, connected: true, bot: false },
-        { playerId: 'p1', name: 'Bot 1', color: 'c2', ready: true, connected: true, bot: true },
+        {
+          playerId: 'p0',
+          name: 'Ana',
+          color: 'c1',
+          ready: true,
+          connected: true,
+          bot: false,
+          auto: false,
+        },
+        {
+          playerId: 'p1',
+          name: 'Bot 1',
+          color: 'c2',
+          ready: true,
+          connected: true,
+          bot: true,
+          auto: false,
+        },
       ],
     });
     const { transport, show } = lobby(room);
@@ -161,8 +185,24 @@ describe('sala de espera a distancia', () => {
     const room = lobbyRoom({
       you: { role: 'player', playerId: 'p1', admin: false },
       seats: [
-        { playerId: 'p0', name: 'Ana', color: 'c1', ready: true, connected: true, bot: false },
-        { playerId: 'p1', name: 'Luis', color: 'c2', ready: false, connected: true, bot: false },
+        {
+          playerId: 'p0',
+          name: 'Ana',
+          color: 'c1',
+          ready: true,
+          connected: true,
+          bot: false,
+          auto: false,
+        },
+        {
+          playerId: 'p1',
+          name: 'Luis',
+          color: 'c2',
+          ready: false,
+          connected: true,
+          bot: false,
+          auto: false,
+        },
       ],
     });
     const { transport, show } = lobby(room);
@@ -315,6 +355,7 @@ function snapshotFor(state: GameState, player: string): ConnectionSnapshot {
     room: roomOf('playing', { you: { role: 'player', playerId: player, admin: false } }),
     view,
     seq: 12,
+    clock: null,
     events: [
       { id: 1, seq: 12, event: { type: 'DICE_ROLLED', player: 'p0', dice: [2, 3], total: 5 } },
     ],

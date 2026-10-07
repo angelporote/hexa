@@ -5,6 +5,7 @@ import { playerColor, playerColors } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
 import { AdminControls } from '../components/AdminControls.js';
+import { TurnTimerOption } from '../components/TurnTimerOption.js';
 import { useConnection } from '../net/provider.js';
 import { ShareRoom } from './ShareRoom.js';
 
@@ -84,6 +85,7 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
           {problem}
         </p>
       )}
+      <TurnTimerOption room={room} />
       {room.you.admin && <AdminControls room={room} />}
       <p className="muted">
         {room.hostless ? t('play.lobby.waitingOwner') : t('play.lobby.waiting')}

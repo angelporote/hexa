@@ -164,6 +164,19 @@ export const en: Record<MessageKey, string> = {
   'lobby.spectators': '{n} spectators',
   'lobby.qrAlt': 'QR code to join room {code}',
 
+  'options.timer': 'Turn timer',
+  'options.timerOff': 'No limit',
+  'options.timerChoice': '{n} seconds',
+  'options.timerHelp': 'If someone does not move in time, a bot plays for them until they return.',
+  'options.timerOn':
+    'Turn timer: {n} seconds. If you do not move in time, a bot plays for you until you return.',
+  'clock.label': 'Time left: {seconds} s',
+  'clock.you': 'You have {seconds} s to move',
+  'clock.other': "{player}'s time: {seconds} s",
+  'sub.title': 'A bot is playing for you',
+  'sub.help': 'You did not move in time. Rejoin the game whenever you like.',
+  'sub.return': 'Back to the game',
+
   'game.turnOf': "{player}'s turn",
   'game.round': 'Turn {n}',
   'game.bank': 'Bank',
@@ -188,6 +201,7 @@ export const en: Record<MessageKey, string> = {
   'players.army': 'Army',
   'players.road': 'Longest road',
   'players.offline': 'offline',
+  'players.auto': 'Bot in control',
 
   'award.longestRoad': 'Longest road',
   'award.largestArmy': 'Largest army',

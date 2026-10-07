@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { autoSetupForTests } from './test-helpers.js';
 import { actionSchema } from './action-schema.js';
 import { ackSchemas, roomStateSchema, serverMessageSchemas } from './messages.js';
-import { ROOM_CODE_ALPHABET, PROTOCOL_VERSION } from './constants.js';
+import {
+  MAX_TURN_TIMER_SECONDS,
+  MIN_TURN_TIMER_SECONDS,
+  PROTOCOL_VERSION,
+  ROOM_CODE_ALPHABET,
+  TURN_TIMER_CHOICES,
+} from './constants.js';
 import { parseClientMessage } from './parse.js';
 import { getPlayerView, legalActions } from '@hexa/engine';
 
@@ -24,6 +30,9 @@ describe('parseClientMessage', () => {
       ['game:preview', { protocolVersion: v, target: null }],
       ['lobby:addBot', { protocolVersion: v }],
       ['lobby:removeBot', { protocolVersion: v, playerId: 'p1' }],
+      ['lobby:setOptions', { protocolVersion: v, turnTimerSeconds: 90 }],
+      ['lobby:setOptions', { protocolVersion: v, turnTimerSeconds: null }],
+      ['seat:return', { protocolVersion: v }],
       ['game:action', { protocolVersion: v, action: { type: 'ROLL' } }],
       ['session:resume', { protocolVersion: v, code: 'ABCD', token: 'a'.repeat(32) }],
     ];
@@ -109,6 +118,26 @@ describe('parseClientMessage', () => {
     expect(parseClientMessage('lobby:update', { protocolVersion: v, color: 'c9' }).ok).toBe(false);
   });
 
+  it('lobby:setOptions acota el temporizador de turno', () => {
+    const options = (turnTimerSeconds: unknown) =>
+      parseClientMessage('lobby:setOptions', { protocolVersion: v, turnTimerSeconds });
+    expect(options(MIN_TURN_TIMER_SECONDS).ok).toBe(true);
+    expect(options(MAX_TURN_TIMER_SECONDS).ok).toBe(true);
+    expect(options(MIN_TURN_TIMER_SECONDS - 1).ok).toBe(false);
+    expect(options(MAX_TURN_TIMER_SECONDS + 1).ok).toBe(false);
+    expect(options(45.5).ok).toBe(false);
+    expect(options('60').ok).toBe(false);
+    expect(options(undefined).ok).toBe(false);
+    expect(parseClientMessage('lobby:setOptions', { protocolVersion: v }).ok).toBe(false);
+    expect(options(60).ok && TURN_TIMER_CHOICES.every((n) => options(n).ok)).toBe(true);
+  });
+
+  it('seat:return no admite campos de más', () => {
+    expect(parseClientMessage('seat:return', { protocolVersion: v, playerId: 'p1' }).ok).toBe(
+      false,
+    );
+  });
+
   it('el alfabeto de códigos no contiene letras ambiguas', () => {
     for (const bad of 'ILOQU') expect(ROOM_CODE_ALPHABET).not.toContain(bad);
   });
@@ -191,9 +220,18 @@ describe('mensajes del servidor y respuestas', () => {
       hostConnected: true,
       hostless: false,
       seats: [
-        { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
+        {
+          playerId: 'p0',
+          name: 'Ana',
+          color: 'c1',
+          ready: false,
+          connected: true,
+          bot: false,
+          auto: false,
+        },
       ],
       spectators: 0,
+      options: { turnTimerSeconds: null },
       you: { role: 'player', playerId: 'p0', admin: false },
     };
     expect(roomStateSchema.safeParse(room).success).toBe(true);
@@ -201,6 +239,26 @@ describe('mensajes del servidor y respuestas', () => {
     expect(
       roomStateSchema.safeParse({ ...room, seats: Array(5).fill(room.seats[0]) }).success,
     ).toBe(false);
+    expect(roomStateSchema.safeParse({ ...room, options: { turnTimerSeconds: 90 } }).success).toBe(
+      true,
+    );
+    expect(roomStateSchema.safeParse({ ...room, options: { turnTimerSeconds: 'x' } }).success).toBe(
+      false,
+    );
+    expect(roomStateSchema.safeParse({ ...room, options: undefined }).success).toBe(false);
+  });
+
+  it('game:view admite el reloj de turno (o su ausencia)', () => {
+    const view = getPlayerView(state, 'p0');
+    const parse = (extra: object) =>
+      serverMessageSchemas['game:view'].safeParse({ seq: 3, view, ...extra }).success;
+    expect(parse({})).toBe(true);
+    expect(parse({ clock: null })).toBe(true);
+    expect(parse({ clock: { actors: ['p0', 'p2'], remainingMs: 45_000 } })).toBe(true);
+    expect(parse({ clock: { actors: ['p0'], remainingMs: -1 } })).toBe(false);
+    expect(parse({ clock: { actors: ['p0'], remainingMs: 1.5 } })).toBe(false);
+    expect(parse({ clock: { actors: 'p0', remainingMs: 10 } })).toBe(false);
+    expect(parse({ clock: { actors: ['p0'], remainingMs: 10, extra: 1 } })).toBe(false);
   });
 
   it('game:view y game:events aceptan lo que genera el motor', () => {

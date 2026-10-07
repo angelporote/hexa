@@ -12,7 +12,11 @@ import { FakeKeyValueClient } from '../testing/fake-kv.js';
 import { TestClient, startTestServer, until } from '../testing/harness.js';
 import type { TestServer } from '../testing/harness.js';
 
-const FAST = { rateLimit: { burst: 100_000, perSecond: 100_000 }, botDelayMs: 1 };
+const FAST = {
+  rateLimit: { burst: 100_000, perSecond: 100_000 },
+  botDelayMs: 1,
+  turnTimerUnitMs: 20, // un plazo de 15 s del temporizador de turno dura 300 ms
+};
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Cómo se guardan las salas entre «reinicios»: cada `open()` es un servidor nuevo sin memoria. */
@@ -230,6 +234,38 @@ describe.each(backends)('reinicio del servidor (%s)', (_name, makePersistence) =
     expect(await ana2.request('lobby:start')).toEqual({ ok: true, data: {} });
     await until(() => ana2.view !== null && luis2.view !== null, 3000, 'vistas');
     expect(ana2.view?.you?.id).toBe('p0');
+  });
+
+  it('el temporizador y quien estaba sustituido por un bot sobreviven al reinicio', async () => {
+    persistence = makePersistence();
+    const first = await boot();
+    const { ana, luis, code } = await lobbyRoom(first);
+    expect(await ana.request('lobby:setOptions', { turnTimerSeconds: 15 })).toEqual({
+      ok: true,
+      data: {},
+    });
+    for (const c of [ana, luis]) await c.request('lobby:update', { ready: true });
+    expect(await ana.request('lobby:start')).toEqual({ ok: true, data: {} });
+    // Ana no mueve: pasado el plazo un bot juega por ella
+    const room = () => first.handle.manager.getRoom(code);
+    await until(() => room()?.seats[0]?.auto === true, 4000, 'Ana sustituida');
+    const tokens = [ana.token];
+    await shutdown(first);
+
+    const second = await boot();
+    const restored = second.handle.manager.getRoom(code);
+    expect(restored?.turnTimerSeconds).toBe(15);
+    expect(restored?.seats[0]).toMatchObject({ playerId: 'p0', auto: true });
+
+    // Ana vuelve a la sala y recupera su asiento: sigue sustituida hasta que lo pide
+    const [ana2] = await reconnect(second, code, tokens);
+    if (!ana2) throw new Error('sin cliente');
+    await until(() => ana2.state !== null, 3000, 'estado');
+    expect(ana2.state?.seats[0]?.auto).toBe(true);
+    expect(ana2.state?.options.turnTimerSeconds).toBe(15);
+    expect(await ana2.request('seat:return')).toEqual({ ok: true, data: {} });
+    await until(() => ana2.state?.seats[0]?.auto === false, 3000, 'asiento recuperado');
+    expect(second.handle.manager.getRoom(code)?.seats[0]?.auto).toBe(false);
   });
 
   it('una sala caducada y barrida no reaparece tras otro reinicio', async () => {

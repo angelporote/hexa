@@ -151,9 +151,9 @@ El simulador (`pnpm sim`) vive en `packages/engine/src/sim` y su CLI en `scripts
 
 ## Protocolo (`packages/protocol`)
 
-Mensajes cliente → servidor: `room:create` (con `role: 'player'` crea una sala a distancia sin pantalla principal), `room:join`, `room:leave`, `lobby:update`, `lobby:addBot`, `lobby:removeBot`, `lobby:start`, `game:action`, `game:preview`, `session:resume`.
+Mensajes cliente → servidor: `room:create` (con `role: 'player'` crea una sala a distancia sin pantalla principal), `room:join`, `room:leave`, `lobby:update`, `lobby:addBot`, `lobby:removeBot`, `lobby:setOptions` (temporizador de turno), `lobby:start`, `game:action`, `game:preview`, `seat:return` (volver tras ser sustituido por un bot), `session:resume`.
 
-Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions`), `game:events`, `game:preview` (lo que elige el jugador de turno, efímero), `error`.
+Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions` + `clock` con quién está en juego y el tiempo que le queda), `game:events`, `game:preview` (lo que elige el jugador de turno, efímero), `error`.
 
 Todos los mensajes del cliente llevan `protocolVersion`. El servidor valida cada uno con Zod antes de procesarlo y descarta los inválidos (`UNKNOWN_MESSAGE`, `PROTOCOL_VERSION_MISMATCH`, `INVALID_MESSAGE`).
 
@@ -172,6 +172,10 @@ Las peticiones del cliente reciben una respuesta (ack) `{ ok: true, data } | { o
 Cada sala guarda `seed + config + lista de acciones`. Como el motor es determinista, reaplicar las acciones reconstruye exactamente la partida. Esto permite reproducir bugs, sobrevivir a reinicios y, más adelante, repeticiones de partidas. Se guarda además una instantánea del estado para no tener que reaplicarlo todo en cada carga.
 
 El gestor mantiene las salas en memoria y las escribe en un `RoomStore` tras cada cambio sin esperar. Con `REDIS_URL` el almacén es `RedisRoomStore` (una clave JSON por sala con caducidad) envuelto en `WriteBehindStore`, que junta las escrituras, reintenta si Redis cae y vuelca lo pendiente al apagar; sin `REDIS_URL` se usa memoria (desarrollo). Detalles en el ADR 0012.
+
+## Temporizador de turno y bot sustituto
+
+Opcional por sala (`room:state.options.turnTimerSeconds`, `null` = sin límite). El gestor lleva en memoria el reloj de cada sala: corre mientras una persona (ni bot ni sustituida) tiene que mover —el jugador de turno o quienes deben descartar— y se reinicia con cada acción. `TurnTimer` despierta en el vencimiento y llama a `expireClock`: quienes no movieron pasan a `seats[].auto` y el conductor de bots juega por ellos, con acciones normales del motor (quedan en el registro). Vuelven con `seat:return` o actuando. El motor no sabe nada del reloj. Ver el ADR 0013.
 
 ## Plan de escalado
 

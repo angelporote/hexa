@@ -9,6 +9,7 @@ import { BotDriver } from './bots/bot-driver.js';
 import { attachSocketServer } from './net/socket-server.js';
 import { RoomManager } from './rooms/room-manager.js';
 import { TradeExpiry } from './rooms/trade-expiry.js';
+import { TurnTimer } from './rooms/turn-timer.js';
 import { createSeed, createToken, randomInt } from './sessions/tokens.js';
 import { MemoryRoomStore } from './store/room-store.js';
 import type { RoomStore } from './store/room-store.js';
@@ -52,6 +53,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
     token: createToken,
     seed: options.seed ?? createSeed,
     roomTtlMs: config.roomTtlMs,
+    turnTimerUnitMs: config.turnTimerUnitMs,
   });
   const restored = await manager.hydrate();
   if (restored > 0) logger.info({ event: 'rooms_restored', count: restored }, 'salas recuperadas');
@@ -60,8 +62,10 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   const { io, deliver } = attachSocketServer(app.server, { manager, config, logger, clock });
   const bots = new BotDriver(manager, deliver, logger, { delayMs: config.botDelayMs });
   const tradeExpiry = new TradeExpiry(manager, deliver, logger, config.tradeOfferTtlMs);
+  const turnTimer = new TurnTimer(manager, deliver, logger, clock);
   // Las salas recuperadas del almacén pueden tener bots por jugar y ofertas abiertas.
   tradeExpiry.checkAll();
+  turnTimer.checkAll();
   bots.resumeAll();
 
   const sweeper = setInterval(() => manager.sweep(), config.sweepIntervalMs);
@@ -74,6 +78,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
     clearInterval(sweeper);
     bots.stop();
     tradeExpiry.stop();
+    turnTimer.stop();
     await io.close();
     // Lo último: las desconexiones de arriba también cambian las salas y deben quedar guardadas.
     await store.close?.();

@@ -66,7 +66,7 @@ export function TableView({
   return (
     <div className="table-view">
       <TableBoard view={view} snapshot={snapshot} infos={infos} />
-      <PlayersPanel view={view} infos={infos} />
+      <PlayersPanel view={view} infos={infos} clock={snapshot.clock} />
       <EventLog events={snapshot.events} nameOf={(id) => nameOf(infos, id)} />
     </div>
   );

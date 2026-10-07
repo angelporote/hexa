@@ -4,6 +4,7 @@ import { playerColor } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import { useConnection } from '../net/provider.js';
 import { AdminControls } from '../components/AdminControls.js';
+import { TurnTimerOption } from '../components/TurnTimerOption.js';
 import { QrCode } from './QrCode.js';
 
 type AckLike = { ok: boolean; error?: string };
@@ -75,6 +76,7 @@ export function Lobby({ room }: { room: RoomState }) {
           })}
         </ul>
 
+        <TurnTimerOption room={room} />
         <AdminControls room={room} />
         {problem && (
           <p className="error" role="alert">

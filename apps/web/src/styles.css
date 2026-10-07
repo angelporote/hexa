@@ -1411,3 +1411,65 @@ h2 {
   flex-direction: column;
   gap: 0.8rem;
 }
+
+/* Temporizador de turno y bot sustituto */
+.countdown {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.countdown.urgent {
+  color: var(--danger);
+}
+
+.player-clock {
+  margin-left: auto;
+  margin-right: 0.4rem;
+}
+
+.status-clock {
+  margin-left: auto;
+  font-size: 1.1rem;
+}
+
+.status-clock + .status-points {
+  margin-left: 0.7rem;
+}
+
+.status-clock.mine {
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.status-clock.mine.urgent {
+  color: var(--danger);
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.option label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.substitute {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+}
+
+.substitute p {
+  margin: 0;
+  color: var(--muted);
+}

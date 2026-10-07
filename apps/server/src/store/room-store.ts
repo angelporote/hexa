@@ -8,6 +8,8 @@ export interface SeatData {
   readonly ready: boolean;
   /** Asiento controlado por el servidor (siempre «conectado» y listo). */
   readonly bot: boolean;
+  /** Jugador sustituido por un bot porque no movió a tiempo; lo recupera al volver. */
+  readonly auto: boolean;
   /** Token secreto del asiento: permite recuperar el asiento al reconectar. */
   readonly token: string;
 }
@@ -33,6 +35,8 @@ export interface RoomData {
   readonly hostless: boolean;
   /** Jugador que administra una sala sin pantalla principal (`null` si no aplica). */
   readonly ownerId: PlayerId | null;
+  /** Segundos de inactividad tras los que un bot sustituye a quien debía mover; `null` = sin límite. */
+  readonly turnTimerSeconds: number | null;
   readonly seats: readonly SeatData[];
   readonly spectatorTokens: readonly string[];
   readonly nextPlayerNumber: number;

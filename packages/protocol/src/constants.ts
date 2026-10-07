@@ -13,5 +13,10 @@ export const MAX_PLAYERS = 4;
 export const MIN_PLAYERS_TO_START = 2;
 export const MAX_NAME_LENGTH = 20;
 
+/** Plazo de inactividad del temporizador de turno (opcional): rango válido y opciones de la interfaz. */
+export const MIN_TURN_TIMER_SECONDS = 10;
+export const MAX_TURN_TIMER_SECONDS = 600;
+export const TURN_TIMER_CHOICES = [30, 60, 90, 120, 180] as const;
+
 /** Tamaño máximo de un mensaje entrante, en bytes (lo aplica el servidor al abrir el socket). */
 export const MAX_MESSAGE_BYTES = 8 * 1024;

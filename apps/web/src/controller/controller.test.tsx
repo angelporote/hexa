@@ -29,6 +29,7 @@ function snapshotFor(view: PlayerView): ConnectionSnapshot {
     }),
     view,
     seq: 20,
+    clock: null,
     events: [],
     diceRoll: null,
     preview: null,
@@ -521,7 +522,15 @@ describe('unirse y sala de espera desde el móvil', () => {
         roomOf('lobby', {
           you: { role: 'player', playerId: 'p0', admin: false },
           seats: [
-            { playerId: 'p0', name: 'Ana', color: 'c2', ready: false, connected: true, bot: false },
+            {
+              playerId: 'p0',
+              name: 'Ana',
+              color: 'c2',
+              ready: false,
+              connected: true,
+              bot: false,
+              auto: false,
+            },
           ],
         }),
       ),
@@ -570,8 +579,24 @@ describe('unirse y sala de espera desde el móvil', () => {
         roomOf('lobby', {
           you: { role: 'player', playerId: 'p0', admin: false },
           seats: [
-            { playerId: 'p0', name: 'Ana', color: 'c1', ready: false, connected: true, bot: false },
-            { playerId: 'p1', name: 'Luis', color: 'c2', ready: true, connected: true, bot: true },
+            {
+              playerId: 'p0',
+              name: 'Ana',
+              color: 'c1',
+              ready: false,
+              connected: true,
+              bot: false,
+              auto: false,
+            },
+            {
+              playerId: 'p1',
+              name: 'Luis',
+              color: 'c2',
+              ready: true,
+              connected: true,
+              bot: true,
+              auto: false,
+            },
           ],
         }),
       ),

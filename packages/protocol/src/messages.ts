@@ -3,6 +3,8 @@ import type { GameEvent, PlayerView } from '@hexa/engine';
 import { actionSchema } from './action-schema.js';
 import {
   MAX_NAME_LENGTH,
+  MAX_TURN_TIMER_SECONDS,
+  MIN_TURN_TIMER_SECONDS,
   PLAYER_COLORS,
   ROOM_CODE_ALPHABET,
   ROOM_CODE_LENGTH,
@@ -83,6 +85,20 @@ export const clientMessageSchemas = {
   'lobby:start': z.object({ protocolVersion }).strict(),
   'lobby:addBot': z.object({ protocolVersion }).strict(),
   'lobby:removeBot': z.object({ protocolVersion, playerId: z.string().min(1).max(32) }).strict(),
+  // `null` quita el límite de tiempo.
+  'lobby:setOptions': z
+    .object({
+      protocolVersion,
+      turnTimerSeconds: z
+        .number()
+        .int()
+        .min(MIN_TURN_TIMER_SECONDS)
+        .max(MAX_TURN_TIMER_SECONDS)
+        .nullable(),
+    })
+    .strict(),
+  // El jugador sustituido por un bot recupera su asiento.
+  'seat:return': z.object({ protocolVersion }).strict(),
   'game:action': z.object({ protocolVersion, action: actionSchema }).strict(),
   'game:preview': z.object({ protocolVersion, target: previewTargetSchema.nullable() }).strict(),
   'session:resume': z
@@ -134,6 +150,8 @@ export const ackSchemas = {
   'lobby:start': ack(empty),
   'lobby:addBot': ack(empty),
   'lobby:removeBot': ack(empty),
+  'lobby:setOptions': ack(empty),
+  'seat:return': ack(empty),
   'game:action': ack(empty),
   'game:preview': ack(empty),
   'session:resume': ack(sessionData),
@@ -151,6 +169,8 @@ export const seatSchema = z.object({
   connected: z.boolean(),
   /** Asiento controlado por el servidor. */
   bot: z.boolean(),
+  /** Jugador sustituido temporalmente por un bot (no respondió a tiempo); puede volver. */
+  auto: z.boolean(),
 });
 export type Seat = z.infer<typeof seatSchema>;
 
@@ -162,6 +182,10 @@ export const roomStateSchema = z.object({
   hostless: z.boolean(),
   seats: z.array(seatSchema).max(4),
   spectators: z.number().int().min(0),
+  options: z.object({
+    /** Segundos de inactividad tras los que un bot juega por quien debía mover; `null` = sin límite. */
+    turnTimerSeconds: z.number().int().nullable(),
+  }),
   /** `admin`: puede añadir bots y empezar la partida (la pantalla principal o el creador a distancia). */
   you: z.object({ role: roleSchema, playerId: z.string().nullable(), admin: z.boolean() }),
 });
@@ -176,9 +200,25 @@ const eventsSchema = z.custom<GameEvent[]>(
   (v) => Array.isArray(v) && v.every((e) => typeof e === 'object' && e !== null && 'type' in e),
 );
 
+/** Quién está «en juego» (tiene que mover) y cuánto tiempo le queda; cada cliente lo cuenta con su reloj. */
+export const turnClockSchema = z
+  .object({
+    actors: z.array(z.string()),
+    remainingMs: z.number().int().min(0),
+  })
+  .strict();
+export type TurnClock = z.infer<typeof turnClockSchema>;
+
 export const serverMessageSchemas = {
   'room:state': roomStateSchema,
-  'game:view': z.object({ seq: z.number().int().min(0), view: viewSchema }).strict(),
+  'game:view': z
+    .object({
+      seq: z.number().int().min(0),
+      view: viewSchema,
+      /** `null` o ausente si no hay temporizador o nadie debe mover. */
+      clock: turnClockSchema.nullable().optional(),
+    })
+    .strict(),
   'game:events': z.object({ seq: z.number().int().min(0), events: eventsSchema }).strict(),
   'game:preview': z
     .object({ playerId: z.string(), target: previewTargetSchema.nullable() })

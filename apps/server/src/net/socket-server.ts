@@ -62,6 +62,10 @@ export function attachSocketServer(
         return manager.addBot(socketId);
       case 'lobby:removeBot':
         return manager.removeBot(socketId, msg.payload.playerId);
+      case 'lobby:setOptions':
+        return manager.setOptions(socketId, msg.payload);
+      case 'seat:return':
+        return manager.returnToGame(socketId);
       case 'game:action':
         return manager.action(socketId, msg.payload.action);
       case 'game:preview':

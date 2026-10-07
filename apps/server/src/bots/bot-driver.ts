@@ -59,7 +59,8 @@ export class BotDriver {
   private actingBot(room: RoomData): PlayerId | null {
     const state = room.game?.snapshot;
     if (!state || state.phase.type === 'ended') return null;
-    const bots = new Set(room.seats.filter((s) => s.bot).map((s) => s.playerId));
+    // Juega por los bots y por quienes están sustituidos por no haber movido a tiempo.
+    const bots = new Set(room.seats.filter((s) => s.bot || s.auto).map((s) => s.playerId));
     if (bots.size === 0) return null;
 
     if (state.phase.type === 'discard') {

@@ -19,6 +19,12 @@ export interface LoggedEvent {
   readonly event: GameEvent;
 }
 
+export interface TurnClockState {
+  readonly actors: readonly string[];
+  /** Hora local (`Date.now()`) a la que vence el plazo. */
+  readonly endsAt: number;
+}
+
 export interface ConnectionSnapshot {
   readonly status: ConnectionStatus;
   /** Se está intentando recuperar la sesión guardada (tras conectar o reconectar). */
@@ -27,6 +33,11 @@ export interface ConnectionSnapshot {
   readonly room: RoomState | null;
   readonly view: PlayerView | null;
   readonly seq: number;
+  /**
+   * Reloj del temporizador de turno: quién tiene que mover y a qué hora local vence el plazo
+   * (el servidor manda el tiempo restante y aquí se convierte con el reloj propio).
+   */
+  readonly clock: TurnClockState | null;
   readonly events: readonly LoggedEvent[];
   /** Última tirada de dados; `key` cambia con cada una para poder reanimarla. */
   readonly diceRoll: { readonly dice: readonly [number, number]; readonly key: number } | null;
@@ -45,6 +56,7 @@ const INITIAL: ConnectionSnapshot = {
   room: null,
   view: null,
   seq: -1,
+  clock: null,
   events: [],
   diceRoll: null,
   preview: null,
@@ -213,6 +225,7 @@ export class GameConnection {
       room: null,
       view: null,
       seq: -1,
+      clock: null,
       events: [],
       diceRoll: null,
       preview: null,
@@ -238,7 +251,13 @@ export class GameConnection {
     if (parsed.data.seq < this.snapshot.seq) return;
     // Una vista nueva borra el resaltado: ya se ha actuado o ha cambiado la situación.
     const preview = parsed.data.seq > this.snapshot.seq ? null : this.snapshot.preview;
-    this.update({ view: parsed.data.view, seq: parsed.data.seq, preview });
+    const { clock } = parsed.data;
+    this.update({
+      view: parsed.data.view,
+      seq: parsed.data.seq,
+      preview,
+      clock: clock ? { actors: clock.actors, endsAt: Date.now() + clock.remainingMs } : null,
+    });
   }
 
   private onEvents(payload: unknown): void {

@@ -162,6 +162,20 @@ export const es = {
   'lobby.spectators': '{n} espectadores',
   'lobby.qrAlt': 'Código QR para unirse a la sala {code}',
 
+  'options.timer': 'Temporizador de turno',
+  'options.timerOff': 'Sin límite',
+  'options.timerChoice': '{n} segundos',
+  'options.timerHelp':
+    'Si alguien no mueve a tiempo, un bot juega por esa persona hasta que vuelva.',
+  'options.timerOn':
+    'Temporizador de turno: {n} segundos. Si no mueves a tiempo, un bot juega por ti hasta que vuelvas.',
+  'clock.label': 'Tiempo restante: {seconds} s',
+  'clock.you': 'Te quedan {seconds} s para mover',
+  'clock.other': 'Tiempo de {player}: {seconds} s',
+  'sub.title': 'Un bot está jugando por ti',
+  'sub.help': 'No moviste a tiempo. Cuando quieras, vuelve a la partida.',
+  'sub.return': 'Volver a la partida',
+
   'game.turnOf': 'Turno de {player}',
   'game.round': 'Turno {n}',
   'game.bank': 'Banco',
@@ -186,6 +200,7 @@ export const es = {
   'players.army': 'Ejército',
   'players.road': 'Camino más largo',
   'players.offline': 'desconectado',
+  'players.auto': 'Bot al mando',
 
   'award.longestRoad': 'Camino más largo',
   'award.largestArmy': 'Mayor ejército',

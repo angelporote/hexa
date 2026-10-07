@@ -14,6 +14,7 @@ import type {
 } from '@hexa/protocol';
 import type { Logger } from '../logger.js';
 import type { RoomData, RoomStore, SeatData } from '../store/room-store.js';
+import { requiredActors } from './actors.js';
 import { generateRoomCode } from './codes.js';
 
 export type ConnectionId = string;
@@ -49,6 +50,15 @@ export interface RoomManagerDeps {
   readonly token: () => string;
   readonly seed: () => string;
   readonly roomTtlMs: number;
+  /** Duración de «un segundo» del temporizador de turno (1000 salvo en pruebas). */
+  readonly turnTimerUnitMs?: number;
+}
+
+/** Quién está «en juego» y hasta cuándo: se recalcula en cada cambio de la sala y no se persiste. */
+interface ClockState {
+  readonly actors: readonly PlayerId[];
+  readonly logLength: number;
+  readonly deadline: number;
 }
 
 const normalizeName = (name: string): string => name.trim().toLowerCase();
@@ -63,6 +73,7 @@ export class RoomManager {
   private readonly connections = new Map<ConnectionId, Connection>();
   private readonly byRoom = new Map<string, Set<ConnectionId>>();
   private readonly listeners: ((code: string) => void)[] = [];
+  private readonly clocks = new Map<string, ClockState>();
 
   constructor(private readonly deps: RoomManagerDeps) {}
 
@@ -73,12 +84,21 @@ export class RoomManager {
     const saved = await this.deps.store.loadAll();
     // Las salas guardadas antes de existir el juego a distancia no traen estos campos.
     for (const room of saved) {
-      const legacy = room as RoomData & { hostless?: boolean; ownerId?: string | null };
-      this.rooms.set(room.code, {
+      const legacy = room as RoomData & {
+        hostless?: boolean;
+        ownerId?: string | null;
+        turnTimerSeconds?: number | null;
+      };
+      const restored: RoomData = {
         ...room,
         hostless: legacy.hostless ?? false,
         ownerId: legacy.ownerId ?? null,
-      });
+        turnTimerSeconds: legacy.turnTimerSeconds ?? null,
+        seats: room.seats.map((s) => ({ ...s, auto: (s as { auto?: boolean }).auto ?? false })),
+      };
+      this.rooms.set(room.code, restored);
+      // Tras un reinicio cada partida recupera un plazo completo.
+      this.updateClock(restored);
     }
     return saved.length;
   }
@@ -114,6 +134,7 @@ export class RoomManager {
       if (idle && this.connectionCount(room.code) === 0) {
         this.rooms.delete(room.code);
         this.byRoom.delete(room.code);
+        this.clocks.delete(room.code);
         this.persistDelete(room.code);
         closed.push(room.code);
         this.deps.logger.info({ event: 'room_expired', code: room.code }, 'sala caducada');
@@ -147,6 +168,7 @@ export class RoomManager {
           color: options.color ?? PLAYER_COLORS[0],
           ready: false,
           bot: false,
+          auto: false,
           token: this.deps.token(),
         }
       : null;
@@ -158,6 +180,7 @@ export class RoomManager {
       hostToken: this.deps.token(),
       hostless: remote,
       ownerId: seat?.playerId ?? null,
+      turnTimerSeconds: null,
       seats: seat ? [seat] : [],
       spectatorTokens: [],
       nextPlayerNumber: seat ? 1 : 0,
@@ -212,6 +235,7 @@ export class RoomManager {
       color,
       ready: false,
       bot: false,
+      auto: false,
       token: this.deps.token(),
     };
     const next = this.touch(room, {
@@ -394,6 +418,7 @@ export class RoomManager {
       color,
       ready: true,
       bot: true,
+      auto: false,
       token: this.deps.token(),
     };
     const next = this.touch(room, {
@@ -415,15 +440,76 @@ export class RoomManager {
     return ok({ data: {}, out: this.broadcastState(next) });
   }
 
+  /** Quien administra la sala fija el temporizador de turno (o lo quita con `null`). */
+  setOptions(
+    conn: ConnectionId,
+    msg: ClientPayloads['lobby:setOptions'],
+  ): ManagerResult<Record<string, never>> {
+    const found = this.require(conn);
+    if (!found.ok) return found;
+    const { room, c } = found.value;
+    if (!this.isAdmin(room, c)) return err('NOT_HOST');
+    if (room.status !== 'lobby') return err('GAME_ALREADY_STARTED');
+    const next = this.touch(room, { turnTimerSeconds: msg.turnTimerSeconds });
+    return ok({ data: {}, out: this.broadcastState(next) });
+  }
+
   // ── Partida ────────────────────────────────────────────────────────────────────────────
 
-  /** El jugador se toma siempre de la conexión, nunca del mensaje: nadie actúa por otro. */
+  /**
+   * El jugador se toma siempre de la conexión, nunca del mensaje: nadie actúa por otro. Si estaba
+   * sustituido por un bot, actuar es volver a la partida.
+   */
   action(conn: ConnectionId, action: Action): ManagerResult<Record<string, never>> {
+    const found = this.require(conn);
+    if (!found.ok) return found;
+    const { c } = found.value;
+    if (c.role !== 'player' || c.playerId === null) return err('NOT_A_PLAYER');
+    const room = this.reclaimSeat(found.value.room, c.playerId);
+    return this.applyFor(room, c.playerId, action);
+  }
+
+  /** El jugador sustituido por un bot recupera su asiento (si no lo estaba, no pasa nada). */
+  returnToGame(conn: ConnectionId): ManagerResult<Record<string, never>> {
     const found = this.require(conn);
     if (!found.ok) return found;
     const { room, c } = found.value;
     if (c.role !== 'player' || c.playerId === null) return err('NOT_A_PLAYER');
-    return this.applyFor(room, c.playerId, action);
+    if (!room.seats.some((s) => s.playerId === c.playerId && s.auto)) {
+      return ok({ data: {}, out: [] });
+    }
+    const next = this.reclaimSeat(room, c.playerId);
+    return ok({ data: {}, out: [...this.broadcastState(next), ...this.broadcastViews(next)] });
+  }
+
+  /** Reloj vigente de una sala, para que el servicio de temporizador programe su vencimiento. */
+  clockOf(
+    code: string,
+  ): { readonly actors: readonly PlayerId[]; readonly deadline: number } | null {
+    const clock = this.clocks.get(code);
+    return clock ? { actors: clock.actors, deadline: clock.deadline } : null;
+  }
+
+  /**
+   * Agota el plazo: quienes debían mover pasan a ser sustituidos por un bot, que juega su decisión
+   * pendiente y las siguientes hasta que vuelvan. `deadline` identifica el reloj que venció, para
+   * no actuar sobre uno ya reiniciado.
+   */
+  expireClock(code: string, deadline: number): ManagerResult<Record<string, never>> {
+    const room = this.rooms.get(code);
+    const clock = this.clocks.get(code);
+    if (!room || !clock || clock.deadline !== deadline || this.deps.clock() < deadline) {
+      return err('NO_CLOCK');
+    }
+    const seats = room.seats.map((s) =>
+      clock.actors.includes(s.playerId) ? { ...s, auto: true } : s,
+    );
+    this.deps.logger.info(
+      { event: 'turn_timeout', code, players: clock.actors },
+      'plazo agotado: un bot sustituye al jugador',
+    );
+    const next = this.touch(room, { seats });
+    return ok({ data: {}, out: [...this.broadcastState(next), ...this.broadcastViews(next)] });
   }
 
   /**
@@ -463,7 +549,9 @@ export class RoomManager {
   ): ManagerResult<Record<string, never>> {
     const room = this.rooms.get(code);
     if (!room) return err('ROOM_NOT_FOUND');
-    if (!room.seats.some((s) => s.playerId === playerId && s.bot)) return err('NOT_A_BOT');
+    if (!room.seats.some((s) => s.playerId === playerId && (s.bot || s.auto))) {
+      return err('NOT_A_BOT');
+    }
     return this.applyFor(room, playerId, action);
   }
 
@@ -543,6 +631,7 @@ export class RoomManager {
   private touch(room: RoomData, patch: Partial<RoomData>): RoomData {
     const next: RoomData = { ...room, ...patch, lastActivity: this.deps.clock() };
     this.rooms.set(next.code, next);
+    this.updateClock(next);
     this.persist(next);
     for (const listener of this.listeners) listener(next.code);
     return next;
@@ -566,6 +655,61 @@ export class RoomManager {
     });
   }
 
+  /** Devuelve el asiento a su jugador si estaba sustituido por un bot. */
+  private reclaimSeat(room: RoomData, playerId: PlayerId): RoomData {
+    if (!room.seats.some((s) => s.playerId === playerId && s.auto)) return room;
+    this.deps.logger.info(
+      { event: 'seat_returned', code: room.code, playerId },
+      'jugador de vuelta',
+    );
+    return this.touch(room, {
+      seats: room.seats.map((s) => (s.playerId === playerId ? { ...s, auto: false } : s)),
+    });
+  }
+
+  /**
+   * Mantiene el reloj de turno de la sala: corre mientras alguna persona (ni bot ni sustituida)
+   * tiene que mover, y se reinicia con cada acción y cuando cambia quién debe mover.
+   */
+  private updateClock(room: RoomData): void {
+    const state = room.game?.snapshot;
+    if (room.status !== 'playing' || !state || room.turnTimerSeconds === null) {
+      this.clocks.delete(room.code);
+      return;
+    }
+    const actors = requiredActors(state).filter((id) =>
+      room.seats.some((s) => s.playerId === id && !s.bot && !s.auto),
+    );
+    if (actors.length === 0) {
+      this.clocks.delete(room.code);
+      return;
+    }
+    const current = this.clocks.get(room.code);
+    if (
+      current &&
+      current.logLength === state.log.length &&
+      current.actors.length === actors.length &&
+      current.actors.every((id, i) => id === actors[i])
+    ) {
+      return;
+    }
+    const unit = this.deps.turnTimerUnitMs ?? 1000;
+    this.clocks.set(room.code, {
+      actors,
+      logLength: state.log.length,
+      deadline: this.deps.clock() + room.turnTimerSeconds * unit,
+    });
+  }
+
+  private clockPayload(code: string): { actors: string[]; remainingMs: number } | null {
+    const clock = this.clocks.get(code);
+    if (!clock) return null;
+    return {
+      actors: [...clock.actors],
+      remainingMs: Math.max(0, Math.round(clock.deadline - this.deps.clock())),
+    };
+  }
+
   private connectionsOf(code: string): Connection[] {
     return [...(this.byRoom.get(code) ?? [])].flatMap((id) => {
       const c = this.connections.get(id);
@@ -587,8 +731,10 @@ export class RoomManager {
         ready: s.ready,
         connected: s.bot || live.some((x) => x.playerId === s.playerId),
         bot: s.bot,
+        auto: s.auto,
       })),
       spectators: live.filter((x) => x.role === 'spectator').length,
+      options: { turnTimerSeconds: room.turnTimerSeconds },
       you: { role: c.role, playerId: c.playerId, admin: this.isAdmin(room, c) },
     };
   }
@@ -615,7 +761,11 @@ export class RoomManager {
       {
         to: conn,
         event: 'game:view',
-        payload: { seq: state.log.length, view: getPlayerView(state, viewer) },
+        payload: {
+          seq: state.log.length,
+          view: getPlayerView(state, viewer),
+          clock: this.clockPayload(room.code),
+        },
       },
     ];
   }

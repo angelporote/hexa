@@ -1,15 +1,20 @@
 import type { PlayerView } from '@hexa/engine';
 import { playerColor } from '@hexa/theme';
+import { Countdown } from '../components/Countdown.js';
 import { useI18n } from '../i18n/index.js';
+import type { TurnClockState } from '../net/connection.js';
 import type { PlayerInfo } from './players.js';
 
 /** Un jugador por tarjeta: puntos públicos, cartas en mano (solo el número) y bonificaciones. */
 export function PlayersPanel({
   view,
   infos,
+  clock = null,
 }: {
   view: PlayerView;
   infos: ReadonlyMap<string, PlayerInfo>;
+  /** Temporizador de turno: quien está en juego muestra su cuenta atrás. */
+  clock?: TurnClockState | null;
 }) {
   const { t } = useI18n();
   const ended = view.phase.type === 'ended';
@@ -41,7 +46,15 @@ export function PlayersPanel({
               />
               <span className="player-name">{info?.name ?? p.id}</span>
               {info?.bot && <span className="tag">{t('lobby.bot')}</span>}
+              {info?.auto && <span className="tag">{t('players.auto')}</span>}
               {info?.connected === false && <span className="tag">{t('players.offline')}</span>}
+              {!ended && clock?.actors.includes(p.id) && (
+                <Countdown
+                  endsAt={clock.endsAt}
+                  className="player-clock"
+                  label={(seconds) => t('clock.other', { player: info?.name ?? p.id, seconds })}
+                />
+              )}
               <span className="player-points" title={t('players.points')}>
                 {p.points}
               </span>

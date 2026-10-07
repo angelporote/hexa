@@ -43,6 +43,7 @@ function snapshotFor(state: GameState, player: string): ConnectionSnapshot {
     room: roomOf('playing', { you: { role: 'player', playerId: player, admin: false } }),
     view,
     seq: 30,
+    clock: null,
     events: [],
     diceRoll: null,
     preview: null,
