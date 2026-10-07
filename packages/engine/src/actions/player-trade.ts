@@ -51,6 +51,7 @@ export function offerTrade(
     want,
     accepted: [],
     rejected: [],
+    counters: [],
   };
   return ok({
     state: { ...state, pendingTrade: offer, nextOfferId: state.nextOfferId + 1 },
@@ -77,6 +78,8 @@ function respond(
     ...offer,
     accepted: accept ? [...offer.accepted, player] : offer.accepted.filter((id) => id !== player),
     rejected: accept ? offer.rejected.filter((id) => id !== player) : [...offer.rejected, player],
+    // Responder con sí o no retira la contraoferta que hubiera hecho antes.
+    counters: offer.counters.filter((c) => c.from !== player),
   };
   return ok({
     state: { ...state, pendingTrade: updated },
@@ -89,6 +92,37 @@ export const acceptTrade = (state: GameState, player: PlayerId, offerId: number)
 
 export const rejectTrade = (state: GameState, player: PlayerId, offerId: number): ActionResult =>
   respond(state, player, offerId, false);
+
+/**
+ * Un destinatario responde con otras condiciones: da `give` y pide `want`. Sustituye a su
+ * respuesta anterior (sí, no o contraoferta). El oferente decide si la acepta.
+ */
+export function counterTrade(
+  state: GameState,
+  player: PlayerId,
+  offerId: number,
+  give: ResourceCounts,
+  want: ResourceCounts,
+): ActionResult {
+  const offer = openOffer(state, offerId);
+  if (!offer) return err(state.phase.type === 'main' ? 'NO_SUCH_OFFER' : 'WRONG_PHASE');
+  if (!offerRecipients(state, offer).includes(player)) return err('NOT_A_RECIPIENT');
+  if (!isValidCounts(give) || !isValidCounts(want)) return err('INVALID_TRADE');
+  if (totalCards(give) === 0 || totalCards(want) === 0) return err('INVALID_TRADE');
+  if (sharesResource(give, want)) return err('INVALID_TRADE');
+  if (!covers(getPlayer(state, player).hand, give)) return err('NOT_ENOUGH_RESOURCES');
+
+  const updated: TradeOffer = {
+    ...offer,
+    accepted: offer.accepted.filter((id) => id !== player),
+    rejected: offer.rejected.filter((id) => id !== player),
+    counters: [...offer.counters.filter((c) => c.from !== player), { from: player, give, want }],
+  };
+  return ok({
+    state: { ...state, pendingTrade: updated },
+    events: [{ type: 'TRADE_COUNTERED', player, offerId }],
+  });
+}
 
 export function cancelTrade(state: GameState, player: PlayerId, offerId: number): ActionResult {
   const offer = openOffer(state, offerId);
@@ -121,6 +155,36 @@ export function confirmTrade(
   next = mapPlayer(next, partner, (p) => ({
     ...p,
     hand: addCounts(subCounts(p.hand, offer.want), offer.give),
+  }));
+  return ok({
+    state: { ...next, pendingTrade: null },
+    events: [{ type: 'TRADE_COMPLETED', offerId, from: player, with: partner }],
+  });
+}
+
+/** El oferente cierra el trato con las condiciones de la contraoferta de `partner`. */
+export function confirmCounter(
+  state: GameState,
+  player: PlayerId,
+  offerId: number,
+  partner: PlayerId,
+): ActionResult {
+  const offer = openOffer(state, offerId);
+  if (!offer) return err(state.phase.type === 'main' ? 'NO_SUCH_OFFER' : 'WRONG_PHASE');
+  if (offer.from !== player) return err('NOT_YOUR_TURN');
+  const counter = offer.counters.find((c) => c.from === partner);
+  if (!counter) return err('NO_COUNTER');
+  // El oferente entrega lo que el otro pide y recibe lo que el otro da.
+  if (!covers(getPlayer(state, player).hand, counter.want)) return err('NOT_ENOUGH_RESOURCES');
+  if (!covers(getPlayer(state, partner).hand, counter.give)) return err('NOT_ENOUGH_RESOURCES');
+
+  let next = mapPlayer(state, player, (p) => ({
+    ...p,
+    hand: addCounts(subCounts(p.hand, counter.want), counter.give),
+  }));
+  next = mapPlayer(next, partner, (p) => ({
+    ...p,
+    hand: addCounts(subCounts(p.hand, counter.give), counter.want),
   }));
   return ok({
     state: { ...next, pendingTrade: null },

@@ -5,7 +5,7 @@ import type { RngState } from '../rng/rng.js';
 import type { GameState, PlayerId } from '../state/types.js';
 import { getPlayer } from '../state/update.js';
 import { emptyCounts } from '../state/resources.js';
-import { legalActions } from '../views/legal-actions.js';
+import { canCounterTrade, legalActions } from '../views/legal-actions.js';
 
 export interface BotMove {
   readonly player: PlayerId;
@@ -98,6 +98,33 @@ export function chooseMoveFor(
           },
         },
         rng: current,
+      };
+    }
+  }
+
+  // Un destinatario a veces responde con otras condiciones (1 a 1) para ejercitar las contraofertas.
+  if (options.offers && canCounterTrade(state, player)) {
+    const roll = nextInt(current, 1000);
+    current = roll.rng;
+    const hand = getPlayer(state, player).hand;
+    const owned = RESOURCE_IDS.filter((r) => hand[r] > 0);
+    if (roll.value < 150 && owned.length > 0) {
+      const give = pick(current, owned);
+      const want = pick(
+        give.rng,
+        RESOURCE_IDS.filter((r) => r !== give.value),
+      );
+      return {
+        move: {
+          player,
+          action: {
+            type: 'COUNTER_TRADE',
+            offerId: state.pendingTrade?.id ?? 0,
+            give: { ...emptyCounts(), [give.value]: 1 },
+            want: { ...emptyCounts(), [want.value]: 1 },
+          },
+        },
+        rng: want.rng,
       };
     }
   }

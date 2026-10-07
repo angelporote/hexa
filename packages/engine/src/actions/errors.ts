@@ -30,4 +30,5 @@ export type RuleError =
   | 'NOT_A_RECIPIENT'
   | 'ALREADY_RESPONDED'
   | 'NOT_ACCEPTED'
+  | 'NO_COUNTER'
   | 'NOT_IMPLEMENTED';

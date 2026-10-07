@@ -49,6 +49,7 @@ export type GameEvent =
   | { readonly type: 'TRADE_OFFERED'; readonly offer: TradeOffer }
   | { readonly type: 'TRADE_ACCEPTED'; readonly player: PlayerId; readonly offerId: number }
   | { readonly type: 'TRADE_REJECTED'; readonly player: PlayerId; readonly offerId: number }
+  | { readonly type: 'TRADE_COUNTERED'; readonly player: PlayerId; readonly offerId: number }
   | { readonly type: 'TRADE_CANCELLED'; readonly offerId: number }
   | {
       readonly type: 'TRADE_COMPLETED';

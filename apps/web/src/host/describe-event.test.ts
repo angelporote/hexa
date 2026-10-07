@@ -13,6 +13,7 @@ const offer: TradeOffer = {
   want: none,
   accepted: [],
   rejected: [],
+  counters: [],
 };
 
 /** Un evento de muestra de cada tipo: el `Record` obliga a cubrir todos los del motor. */

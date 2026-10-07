@@ -31,6 +31,7 @@ describe('OFFER_TRADE', () => {
       want,
       accepted: [],
       rejected: [],
+      counters: [],
     });
     expect(r.state.nextOfferId).toBe(2);
     expect(r.events[0]?.type).toBe('TRADE_OFFERED');

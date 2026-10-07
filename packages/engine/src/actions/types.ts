@@ -27,7 +27,14 @@ export type Action =
   | { readonly type: 'ACCEPT_TRADE'; readonly offerId: number }
   | { readonly type: 'REJECT_TRADE'; readonly offerId: number }
   | { readonly type: 'CANCEL_TRADE'; readonly offerId: number }
+  | {
+      readonly type: 'COUNTER_TRADE';
+      readonly offerId: number;
+      readonly give: ResourceCounts;
+      readonly want: ResourceCounts;
+    }
   | { readonly type: 'CONFIRM_TRADE'; readonly offerId: number; readonly with: PlayerId }
+  | { readonly type: 'CONFIRM_COUNTER'; readonly offerId: number; readonly with: PlayerId }
   | { readonly type: 'END_TURN' };
 
 export type ActionType = Action['type'];

@@ -84,6 +84,9 @@ function candidates(state: GameState, player: PlayerId): Action[] {
           { type: 'REJECT_TRADE', offerId: offer.id },
           { type: 'CANCEL_TRADE', offerId: offer.id },
         );
+        for (const counter of offer.counters) {
+          out.push({ type: 'CONFIRM_COUNTER', offerId: offer.id, with: counter.from });
+        }
         for (const id of offer.accepted) {
           out.push({ type: 'CONFIRM_TRADE', offerId: offer.id, with: id });
         }
@@ -112,4 +115,12 @@ export function canOfferTrade(state: GameState, player: PlayerId): boolean {
     return false;
   }
   return RESOURCE_IDS.some((r) => getPlayer(state, player).hand[r] > 0);
+}
+
+/** El jugador puede responder a la oferta abierta con otras condiciones. */
+export function canCounterTrade(state: GameState, player: PlayerId): boolean {
+  const offer = state.pendingTrade;
+  if (!offer || state.phase.type !== 'main' || offer.from === player) return false;
+  const recipient = offer.to === null || offer.to.includes(player);
+  return recipient && RESOURCE_IDS.some((r) => getPlayer(state, player).hand[r] > 0);
 }

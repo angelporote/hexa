@@ -83,6 +83,13 @@ export type Phase =
   | { readonly type: 'main' }
   | { readonly type: 'ended' };
 
+/** Contraoferta de un destinatario: lo que él da al oferente y lo que pide a cambio. */
+export interface TradeCounter {
+  readonly from: PlayerId;
+  readonly give: ResourceCounts;
+  readonly want: ResourceCounts;
+}
+
 export interface TradeOffer {
   readonly id: number;
   readonly from: PlayerId;
@@ -92,6 +99,8 @@ export interface TradeOffer {
   readonly want: ResourceCounts;
   readonly accepted: readonly PlayerId[];
   readonly rejected: readonly PlayerId[];
+  /** Como mucho una por destinatario; la última sustituye a la anterior. */
+  readonly counters: readonly TradeCounter[];
 }
 
 export interface TurnState {

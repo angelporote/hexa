@@ -9,7 +9,15 @@ import type { ActionResult } from './outcome.js';
 import { buyDevCard, playArmy, playMonopoly, playPlenty, playRoads } from './dev-cards.js';
 import { discard, moveRobber } from './robber.js';
 import { roll } from './roll.js';
-import { acceptTrade, cancelTrade, confirmTrade, offerTrade, rejectTrade } from './player-trade.js';
+import {
+  acceptTrade,
+  cancelTrade,
+  confirmCounter,
+  confirmTrade,
+  counterTrade,
+  offerTrade,
+  rejectTrade,
+} from './player-trade.js';
 import { endTurn } from './turn.js';
 import { setupBuildRoad, setupBuildSettlement } from './setup.js';
 import type { Action } from './types.js';
@@ -54,6 +62,10 @@ function dispatch(state: GameState, player: PlayerId, action: Action): ActionRes
       return rejectTrade(state, player, action.offerId);
     case 'CANCEL_TRADE':
       return cancelTrade(state, player, action.offerId);
+    case 'COUNTER_TRADE':
+      return counterTrade(state, player, action.offerId, action.give, action.want);
+    case 'CONFIRM_COUNTER':
+      return confirmCounter(state, player, action.offerId, action.with);
     case 'CONFIRM_TRADE':
       return confirmTrade(state, player, action.offerId, action.with);
     default:

@@ -16,7 +16,7 @@ import type {
   TradeOffer,
   TurnState,
 } from '../state/types.js';
-import { canOfferTrade, legalActions } from './legal-actions.js';
+import { canCounterTrade, canOfferTrade, legalActions } from './legal-actions.js';
 
 export type Viewer = PlayerId | 'host' | 'spectator';
 
@@ -75,6 +75,8 @@ export interface PlayerView {
   } | null;
   readonly legalActions: readonly Action[];
   readonly canOfferTrade: boolean;
+  /** Puede contraofertar a la oferta abierta (es destinatario y tiene cartas que dar). */
+  readonly canCounterTrade: boolean;
 }
 
 /**
@@ -133,5 +135,6 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
       : null,
     legalActions: me ? legalActions(state, me.id) : [],
     canOfferTrade: me ? canOfferTrade(state, me.id) : false,
+    canCounterTrade: me ? canCounterTrade(state, me.id) : false,
   };
 }
