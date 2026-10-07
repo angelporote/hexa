@@ -5,4 +5,6 @@ coverage
 *.log
 .env
 .claude/
+test-results/
+playwright-report/
 

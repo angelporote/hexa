@@ -31,3 +31,25 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+
+  # Pruebas de extremo a extremo: servidor y web reales con navegadores de verdad. Van aparte de
+  # `pnpm check` porque necesitan Chromium y son más lentas.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @hexa/e2e exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      # Si falla, las capturas y trazas (abrir con `playwright show-trace`) ayudan a ver qué pasó.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-resultados
+          path: e2e/test-results
+          retention-days: 7

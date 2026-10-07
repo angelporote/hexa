@@ -15,6 +15,13 @@ describe('loadConfig', () => {
     expect(loadConfig({ REDIS_URL: '   ' }).redisUrl).toBeNull();
   });
 
+  it('GAME_SEED fija la semilla de todas las partidas; vacía o en blanco, no', () => {
+    expect(loadConfig({}).gameSeed).toBeNull();
+    expect(loadConfig({ GAME_SEED: ' e2e-231 ' }).gameSeed).toBe('e2e-231');
+    expect(loadConfig({ GAME_SEED: '' }).gameSeed).toBeNull();
+    expect(loadConfig({ GAME_SEED: '  ' }).gameSeed).toBeNull();
+  });
+
   it('los números inválidos caen al valor por defecto', () => {
     expect(loadConfig({ PORT: 'abc', ROOM_TTL_MS: '-5' })).toMatchObject({
       port: 3001,

@@ -17,6 +17,7 @@
     "check:terms": "node scripts/check-forbidden-terms.mjs",
     "format": "prettier --write .",
     "sim": "tsx scripts/sim.ts",
+    "e2e": "pnpm --filter @hexa/e2e e2e",
     "check:engine": "node scripts/check-engine-purity.mjs"
   },
   "devDependencies": {

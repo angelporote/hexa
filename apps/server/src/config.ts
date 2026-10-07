@@ -16,6 +16,11 @@ export interface ServerConfig {
   readonly rateLimit: { readonly burst: number; readonly perSecond: number };
   /** Redis donde guardar las salas; `null` = en memoria (se pierden al reiniciar). */
   readonly redisUrl: string | null;
+  /**
+   * Semilla fija para todas las partidas; `null` = una aleatoria por partida. Solo para pruebas y
+   * demos: con ella el tablero y las tiradas son siempre los mismos.
+   */
+  readonly gameSeed: string | null;
 }
 
 type Env = Readonly<Record<string, string | undefined>>;
@@ -40,5 +45,6 @@ export function loadConfig(env: Env): ServerConfig {
     turnTimerUnitMs: int(env['TURN_TIMER_UNIT_MS'], 1000),
     rateLimit: { burst: int(env['RATE_BURST'], 30), perSecond: int(env['RATE_PER_SECOND'], 10) },
     redisUrl: env['REDIS_URL']?.trim() || null,
+    gameSeed: env['GAME_SEED']?.trim() || null,
   };
 }

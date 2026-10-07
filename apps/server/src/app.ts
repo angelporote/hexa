@@ -51,7 +51,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
     clock,
     randomInt,
     token: createToken,
-    seed: options.seed ?? createSeed,
+    seed: options.seed ?? (config.gameSeed === null ? createSeed : () => config.gameSeed ?? ''),
     roomTtlMs: config.roomTtlMs,
     turnTimerUnitMs: config.turnTimerUnitMs,
   });

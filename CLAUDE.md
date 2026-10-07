@@ -40,6 +40,7 @@ pnpm format                          # Prettier
 pnpm --filter @hexa/engine test      # tests de un paquete
 pnpm sim -- --games 1000             # simulador de partidas (bots aleatorios + invariantes)
 pnpm sim -- --games 200 --bots mixed # un bot razonable contra tres aleatorios (también: smart, random)
+pnpm e2e                             # pruebas de extremo a extremo con Playwright (no entra en `pnpm check`; ver docs)
 ```
 
 ## Reglas de arquitectura (no negociables)

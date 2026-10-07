@@ -21,6 +21,10 @@ El servidor responde en `GET http://localhost:3001/health`. Abre `http://localho
 
 Simular partidas completas de bots (sin red): `pnpm sim -- --games 100`. Con `--bots smart` juegan los bots razonables y con `--bots mixed` uno razonable contra aleatorios, para medir su calidad.
 
+## Pruebas de extremo a extremo
+
+`pnpm e2e` arranca el servidor y la web y juega con navegadores reales, cada persona en su propio contexto: una pantalla principal con cuatro móviles y una partida a distancia con un espectador. En local se puede usar el navegador que ya tengas: `E2E_CHANNEL=msedge pnpm e2e` (o `chrome`); si no, `pnpm --filter @hexa/e2e exec playwright install chromium` una vez. No forman parte de `pnpm check`; la CI las ejecuta en un trabajo aparte.
+
 ## Persistencia de salas
 
 Por defecto las salas viven en memoria y se pierden al reiniciar el servidor. Para que sobrevivan, define `REDIS_URL` al arrancarlo:
