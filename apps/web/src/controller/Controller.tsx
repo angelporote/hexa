@@ -11,7 +11,9 @@ import { CostsSheet } from './CostsSheet.js';
 import { DiscardPanel } from './DiscardPanel.js';
 import { Hand } from './Hand.js';
 import { forcedMode, isMyTurn } from './legal.js';
+import { OfferCard } from './OfferCard.js';
 import { PlacementPanel } from './PlacementPanel.js';
+import { TradeComposer } from './TradeComposer.js';
 import { StatusBar } from './StatusBar.js';
 import { useTurnVibration, useWakeLock } from './hooks.js';
 
@@ -32,6 +34,11 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
   // Al cambiar de fase o de turno, se vuelve a la pantalla principal del mando.
   const situation = `${view.turn.player}:${view.phase.type}`;
   useEffect(() => setChoice(null), [situation]);
+  // Si la oferta se cierra mientras se redacta una contraoferta, se vuelve al inicio.
+  const openOfferId = view.pendingTrade?.id ?? null;
+  useEffect(() => {
+    if (openOfferId === null) setChoice((c) => (c === 'counter' ? null : c));
+  }, [openOfferId]);
 
   if (!you) return null;
   const name = (id: string) => nameOf(infos, id);
@@ -55,19 +62,44 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
   } else if (forced?.kind === 'robber') {
     panel = <PlacementPanel view={view} kind="robber" infos={infos} />;
   } else if (!myTurn) {
-    panel = <p className="instruction waiting">{phaseText(view, name, t)}</p>;
+    panel =
+      choice === 'counter' && view.pendingTrade ? (
+        <TradeComposer
+          view={view}
+          infos={infos}
+          counterTo={view.pendingTrade}
+          onCancel={close}
+          onDone={close}
+        />
+      ) : (
+        <>
+          {view.pendingTrade && (
+            <OfferCard view={view} infos={infos} onCounter={() => setChoice('counter')} />
+          )}
+          <p className="instruction waiting">{phaseText(view, name, t)}</p>
+        </>
+      );
   } else if (choice === 'road' || choice === 'settlement' || choice === 'city') {
     panel = (
       <PlacementPanel view={view} kind={choice} infos={infos} onCancel={close} onDone={close} />
     );
   } else if (choice === 'bank') {
     panel = <BankPanel view={view} onCancel={close} onDone={close} />;
+  } else if (choice === 'trade') {
+    panel = <TradeComposer view={view} infos={infos} onCancel={close} onDone={close} />;
   } else if (choice === 'plenty') {
     panel = <PlentyPanel view={view} onCancel={close} onDone={close} />;
   } else if (choice === 'monopoly') {
     panel = <MonopolyPanel view={view} onCancel={close} onDone={close} />;
   } else {
-    panel = <ActionPanel view={view} onChoose={setChoice} />;
+    panel = (
+      <>
+        {view.pendingTrade && (
+          <OfferCard view={view} infos={infos} onCounter={() => setChoice('counter')} />
+        )}
+        <ActionPanel view={view} onChoose={setChoice} />
+      </>
+    );
   }
 
   return (

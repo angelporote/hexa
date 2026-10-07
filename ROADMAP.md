@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 4 (todo hecho salvo la 4.8, pruebas en dispositivos reales, que necesita a una persona con los móviles)
-- **Última tarea completada:** 4.7
-- **Bloqueos / dudas abiertas:** 4.8 y el criterio M2 (4 personas con 4 móviles) requieren dispositivos reales; la lista de comprobación está en `docs/devices.md`. Verificado en emulación de móvil contra un servidor real. En desarrollo, abrir el host por la IP del ordenador (no `localhost`) para que el QR sirva a los móviles.
-- **Próximo paso:** probar `docs/devices.md` con móviles reales (4.8). En paralelo se puede empezar la Fase 5 (comercio entre jugadores), que no depende de ello.
+- **Fase en curso:** 5 completada. La 4.8 (móviles reales) sigue abierta; ver `docs/devices.md`
+- **Última tarea completada:** 5.4
+- **Bloqueos / dudas abiertas:** la prueba con 4 móviles reales a la vez (M2) y los criterios de comercio «con 4 móviles» siguen sin hacerse a mano; están cubiertos por tests de red con 4 clientes (los tests E2E con Playwright llegan en la 7.6) y por una prueba en navegador contra bots. En redes tipo `alumnos 3` los móviles no ven el ordenador: usar una zona Wi-Fi.
+- **Próximo paso:** Fase 6 (juego a distancia y espectadores). Pendiente en paralelo: terminar la lista de comprobación de `docs/devices.md` con 4 móviles (criterio M2).
 
 ## Objetivo del MVP publicable
 
@@ -118,10 +118,10 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 ## Fase 5 — Comercio entre jugadores
 
-- [ ] **5.1** Proponer oferta desde el móvil (dar / pedir) al resto o a un jugador concreto.
-- [ ] **5.2** Recibir ofertas: aceptar, rechazar o contraofertar.
-- [ ] **5.3** El jugador activo elige entre las aceptaciones; cancelación y caducidad de ofertas.
-- [ ] **5.4** Las ofertas abiertas se muestran en el host.
+- [x] **5.1** Proponer oferta desde el móvil (dar / pedir) al resto o a un jugador concreto.
+- [x] **5.2** Recibir ofertas: aceptar, rechazar o contraofertar.
+- [x] **5.3** El jugador activo elige entre las aceptaciones; cancelación y caducidad de ofertas.
+- [x] **5.4** Las ofertas abiertas se muestran en el host.
 
 **Criterios de aceptación:** comercio fluido entre 4 móviles sin estados inconsistentes, cubierto por tests E2E.
 

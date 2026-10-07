@@ -1139,3 +1139,147 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Comercio entre jugadores ───────────────────────────────────────────────────────── */
+
+.counts-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.counts-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.counts-item b {
+  font-variant-numeric: tabular-nums;
+}
+
+.who {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.offer-card,
+.host-offer {
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+}
+
+.offer-card h2,
+.host-offer h2 {
+  margin-bottom: 0.5rem;
+}
+
+.offer-head {
+  margin: 0 0 0.4rem;
+}
+
+.offer-terms {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
+}
+
+.offer-terms div {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.offer-terms dt {
+  min-width: 3.2rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.offer-terms dd {
+  margin: 0;
+}
+
+.offer-status {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.offer-status li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.offer-status .counter-terms {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.offer-actions .btn {
+  flex: 1;
+}
+
+.offer-actions .full {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.btn-sm {
+  min-height: 36px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.trade-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.trade-side,
+.trade-recipients {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  margin: 0;
+}
+
+.trade-side legend,
+.trade-recipients legend {
+  padding: 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.trade-recipients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

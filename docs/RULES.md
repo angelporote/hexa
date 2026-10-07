@@ -119,11 +119,18 @@ Se aplica siempre la mejor tarifa disponible. El banco debe tener la carta que s
 
 Solo se puede comerciar **con la persona que tiene el turno**: los demás no comercian entre sí.
 
-1. La persona activa **propone** una oferta: qué da y qué pide, a todos o a jugadores concretos. Debe tener lo que ofrece, y no puede pedir y dar el mismo recurso.
-2. Cada destinatario puede **aceptar** (si tiene lo que se le pide) o **rechazar**, y puede cambiar de opinión mientras la oferta siga abierta.
-3. La persona activa **elige** con quién cerrar el trato entre quienes aceptaron, o **cancela**. Al cerrar se vuelve a comprobar que ambos tienen las cartas.
+1. La persona activa **propone** una oferta: qué da y qué pide, a todos o a jugadores concretos. Debe tener lo que ofrece, tiene que haber algo a cada lado y no puede pedir y dar el mismo recurso.
+2. Cada destinatario responde con una de tres cosas, y puede cambiar de respuesta mientras la oferta siga abierta:
+   - **Aceptar**, si tiene lo que se le pide.
+   - **Rechazar**.
+   - **Contraofertar**: propone otras condiciones (qué da él y qué pide). Solo hay una contraoferta por persona; la última sustituye a la anterior y a cualquier sí o no que hubiera dicho.
+3. La persona activa ve las respuestas y **cierra el trato** con alguien que aceptó, o **acepta una contraoferta** (el trato se hace con las condiciones de esa contraoferta), o **cancela**. Al cerrar se vuelve a comprobar que ambas partes tienen las cartas.
 
-Solo hay **una oferta abierta** a la vez. Se cancela sola al terminar el turno o si la partida sale de la fase principal (por ejemplo, al jugar una carta de ejército o al terminar la partida).
+Solo hay **una oferta abierta** a la vez. La oferta se cancela sola:
+
+- al terminar el turno;
+- si la partida sale de la fase principal (por ejemplo, al jugar una carta de ejército o al terminar la partida);
+- si pasa demasiado tiempo sin cerrarse (2 minutos por defecto), para que una persona ausente no deje a los demás esperando.
 
 ## 11. Bonificaciones
 

@@ -4,7 +4,8 @@ import { useI18n } from '../i18n/index.js';
 import { has } from './legal.js';
 import { useSender } from './use-send.js';
 
-export type HomeChoice = 'road' | 'settlement' | 'city' | 'bank' | 'plenty' | 'monopoly';
+export type HomeChoice =
+  'road' | 'settlement' | 'city' | 'bank' | 'trade' | 'counter' | 'plenty' | 'monopoly';
 
 /**
  * Botones del turno libre, generados a partir de `legalActions`: solo se pueden pulsar los que el
@@ -61,6 +62,7 @@ export function ActionPanel({
           {opener(t('ctl.buildCity'), 'city', has(legal, 'BUILD_CITY'))}
           {direct(t('ctl.buyCard'), 'BUY_DEV_CARD')}
           {opener(t('ctl.bankTrade'), 'bank', has(legal, 'BANK_TRADE'))}
+          {opener(t('ctl.tradePlayers'), 'trade', view.canOfferTrade)}
         </div>
       )}
 

@@ -6,6 +6,7 @@ import { Board } from '../board/Board.js';
 import { useI18n } from '../i18n/index.js';
 import type { ConnectionSnapshot } from '../net/connection.js';
 import { Dice } from './Dice.js';
+import { OfferSummary } from '../components/OfferSummary.js';
 import { EventLog } from './EventLog.js';
 import { PlayersPanel } from './PlayersPanel.js';
 import { colorOf, nameOf, playerInfos } from './players.js';
@@ -90,6 +91,16 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
 
       <aside className="sidebar">
         <PlayersPanel view={view} infos={infos} />
+        {view.pendingTrade && (
+          <section className="host-offer" aria-label={t('trade.title')}>
+            <h2>{t('trade.title')}</h2>
+            <OfferSummary
+              offer={view.pendingTrade}
+              playerIds={view.players.map((p) => p.id)}
+              infos={infos}
+            />
+          </section>
+        )}
         <EventLog events={snapshot.events} nameOf={name} />
       </aside>
 

@@ -151,9 +151,9 @@ El simulador (`pnpm sim`) vive en `packages/engine/src/sim` y su CLI en `scripts
 
 ## Protocolo (`packages/protocol`)
 
-Mensajes cliente → servidor: `room:create`, `room:join`, `lobby:update`, `lobby:start`, `game:action`, `session:resume`.
+Mensajes cliente → servidor: `room:create`, `room:join`, `room:leave`, `lobby:update`, `lobby:addBot`, `lobby:removeBot`, `lobby:start`, `game:action`, `game:preview`, `session:resume`.
 
-Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions`), `game:events`, `error`.
+Mensajes servidor → cliente: `room:state` (lobby), `game:view` (vista personal + `legalActions`), `game:events`, `game:preview` (lo que elige el jugador de turno, efímero), `error`.
 
 Todos los mensajes del cliente llevan `protocolVersion`. El servidor valida cada uno con Zod antes de procesarlo y descarta los inválidos (`UNKNOWN_MESSAGE`, `PROTOCOL_VERSION_MISMATCH`, `INVALID_MESSAGE`).
 
