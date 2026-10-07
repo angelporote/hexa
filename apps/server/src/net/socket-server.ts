@@ -5,6 +5,7 @@ import { MAX_MESSAGE_BYTES, parseClientMessage } from '@hexa/protocol';
 import type { ClientMessage, ErrorCode } from '@hexa/protocol';
 import type { ServerConfig } from '../config.js';
 import type { Logger } from '../logger.js';
+import { errorFields } from '../monitoring/error-fields.js';
 import type { ManagerResult, OutMessage, RoomManager } from '../rooms/room-manager.js';
 import { TokenBucket } from './rate-limit.js';
 
@@ -122,7 +123,7 @@ export function attachSocketServer(
         result = dispatch(socket.id, parsed.value);
       } catch (error) {
         logger.error(
-          { event: 'handler_crashed', id: socket.id, name: event, error: String(error) },
+          { event: 'handler_crashed', id: socket.id, name: event, ...errorFields(error) },
           'error interno',
         );
         fail(ack, 'SERVER_ERROR');

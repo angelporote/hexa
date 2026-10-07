@@ -11,6 +11,7 @@ export default defineConfig({
     proxy: {
       '/socket.io': { target: 'http://localhost:3001', ws: true },
       '/health': 'http://localhost:3001',
+      '/client-errors': 'http://localhost:3001',
     },
   },
 });

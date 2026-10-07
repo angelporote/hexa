@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 7 (robustez y calidad). Siguen abiertas la 4.8 (móviles reales) y la prueba con personas de los hitos M2 y M3
-- **Última tarea completada:** 7.6
+- **Fase en curso:** 7 completada. Siguen abiertas la 4.8 (móviles reales) y la prueba con personas de los hitos M2 y M3
+- **Última tarea completada:** 7.7
 - **Bloqueos / dudas abiertas:** M3 («2 jugadores en la sala y 2 remotos») está cubierto por tests de red con clientes reales y por una prueba en navegador (escritorio + móvil emulado + espectador), pero no con personas en dispositivos distintos. El test del almacén contra un Redis real solo corre en la CI (en esta máquina no hay Redis ni Docker; en local se usa un cliente en memoria con el mismo contrato). Dos pestañas del mismo navegador comparten asiento (la sesión va en `localStorage`): para probar varios jugadores en una máquina, usar `localhost` y `127.0.0.1` o navegadores distintos.
-- **Próximo paso:** 7.7 (monitorización de errores en servidor y web). En paralelo: probar con personas en dispositivos distintos (M2, M3).
+- **Próximo paso:** Fase 8 (preparación para publicar). Casi todas sus tareas necesitan decisiones tuyas (nombre comercial, arte, dominio, proveedor). Antes, conviene cerrar las pruebas con personas en dispositivos reales (4.8, M2, M3). En paralelo: probar con personas en dispositivos distintos (M2, M3).
 
 ## Objetivo del MVP publicable
 
@@ -146,7 +146,7 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 - [x] **7.4** Accesibilidad: colores de jugador distinguibles con daltonismo (formas o patrones además del color), tamaños táctiles adecuados.
 - [x] **7.5** Sonidos y feedback visual pulido.
 - [x] **7.6** Tests E2E con Playwright: un host y 4 mandos en contextos de navegador distintos.
-- [ ] **7.7** Monitorización de errores (Sentry o similar) en servidor y web.
+- [x] **7.7** Monitorización de errores (Sentry o similar) en servidor y web.
 
 ---
 

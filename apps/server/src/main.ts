@@ -1,11 +1,13 @@
 import { buildServer } from './app.js';
 import { loadConfig } from './config.js';
 import { createLogger } from './logger.js';
+import { installCrashLogging } from './monitoring/crash-logging.js';
 import { createStore } from './store/create-store.js';
 import { describeError } from './store/redis-room-store.js';
 
 const config = loadConfig(process.env);
 const logger = createLogger(config.logLevel);
+installCrashLogging(logger);
 const store = await createStore(config, logger).catch((error: unknown) => {
   logger.fatal({ event: 'store_failed', error: describeError(error) }, 'no se pudo abrir Redis');
   return process.exit(1);

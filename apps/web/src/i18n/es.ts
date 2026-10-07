@@ -163,6 +163,10 @@ export const es = {
   'lobby.qrAlt': 'Código QR para unirse a la sala {code}',
 
   'ctl.gained': 'Recibes {list}',
+  'boundary.title': 'Algo ha ido mal',
+  'boundary.help':
+    'Hemos anotado el fallo. Recarga la página: tu asiento en la partida se conserva.',
+  'boundary.reload': 'Recargar',
   'sound.toggle': 'Sonido',
   'sound.on': 'Sonido activado',
   'sound.off': 'Sonido desactivado',

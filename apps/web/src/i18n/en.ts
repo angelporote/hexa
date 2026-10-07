@@ -165,6 +165,9 @@ export const en: Record<MessageKey, string> = {
   'lobby.qrAlt': 'QR code to join room {code}',
 
   'ctl.gained': 'You get {list}',
+  'boundary.title': 'Something went wrong',
+  'boundary.help': 'We have logged the problem. Reload the page: your seat in the game is kept.',
+  'boundary.reload': 'Reload',
   'sound.toggle': 'Sound',
   'sound.on': 'Sound on',
   'sound.off': 'Sound off',

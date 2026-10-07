@@ -10,6 +10,7 @@ import {
   TURN_TIMER_CHOICES,
 } from './constants.js';
 import { parseClientMessage } from './parse.js';
+import { MAX_CLIENT_ERROR_BYTES, clientErrorSchema } from './client-error.js';
 import { getPlayerView, legalActions } from '@hexa/engine';
 
 const v = PROTOCOL_VERSION;
@@ -297,5 +298,38 @@ describe('mensajes del servidor y respuestas', () => {
       }).success,
     ).toBe(true);
     expect(ackSchemas['room:create'].safeParse({ ok: true, data: {} }).success).toBe(false);
+  });
+});
+
+describe('informe de error de la web', () => {
+  const report = { message: 'Boom', source: 'window', path: '/play/:code' };
+
+  it('acepta un informe mínimo y uno con pila', () => {
+    expect(clientErrorSchema.safeParse(report).success).toBe(true);
+    expect(
+      clientErrorSchema.safeParse({ ...report, stack: 'Error: Boom at x (y.js:1:1)' }).success,
+    ).toBe(true);
+  });
+
+  it('acota los campos y no admite nada de más', () => {
+    const bad = (extra: object) => clientErrorSchema.safeParse({ ...report, ...extra }).success;
+    expect(bad({ message: '' })).toBe(false);
+    expect(bad({ message: 'x'.repeat(501) })).toBe(false);
+    expect(bad({ stack: 'x'.repeat(4001) })).toBe(false);
+    expect(bad({ path: 'x'.repeat(201) })).toBe(false);
+    expect(bad({ source: 'otro' })).toBe(false);
+    expect(bad({ token: 'secreto' })).toBe(false);
+    expect(bad({ hand: { r1: 3 } })).toBe(false);
+    expect(clientErrorSchema.safeParse({ message: 'x', source: 'window' }).success).toBe(false);
+  });
+
+  it('el tamaño máximo del cuerpo cubre un informe completo', () => {
+    const worst = JSON.stringify({
+      message: 'x'.repeat(500),
+      stack: 'y'.repeat(4000),
+      source: 'promise',
+      path: 'z'.repeat(200),
+    });
+    expect(worst.length).toBeLessThan(MAX_CLIENT_ERROR_BYTES);
   });
 });

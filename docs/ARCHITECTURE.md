@@ -178,6 +178,10 @@ El gestor mantiene las salas en memoria y las escribe en un `RoomStore` tras cad
 
 Hay dos, ambos funciones puras del estado. El **bot aleatorio** (`sim/bot.ts`) ejercita el motor en el simulador. El **bot razonable** (`bot/smart-bot.ts`, ADR 0014) es el que juega en el servidor, por los asientos de bot y por los jugadores sustituidos: puntúa cada acción de `legalActions` con reglas sencillas (valor de los vértices, objetivos de construcción, descarte, ladrón, comercio con el banco) y solo lee lo que vería un jugador.
 
+## Observabilidad
+
+Los logs estructurados del servidor (`pino`, un JSON por línea) son el único sitio donde mirar. Las excepciones sin capturar y las promesas rechazadas se registran con su pila (`monitoring/crash-logging.ts`); los errores de la web llegan por `POST /client-errors` (captura global y `ErrorBoundary`, con tokens y códigos de sala redactados, límite de ritmo y sin guardar la IP) y quedan como `event: 'client_error'`. Sin servicios de terceros por ahora; ver el ADR 0018.
+
 ## Temporizador de turno y bot sustituto
 
 Opcional por sala (`room:state.options.turnTimerSeconds`, `null` = sin límite). El gestor lleva en memoria el reloj de cada sala: corre mientras una persona (ni bot ni sustituida) tiene que mover —el jugador de turno o quienes deben descartar— y se reinicia con cada acción. `TurnTimer` despierta en el vencimiento y llama a `expireClock`: quienes no movieron pasan a `seats[].auto` y el conductor de bots juega por ellos, con acciones normales del motor (quedan en el registro). Vuelven con `seat:return` o actuando. El motor no sabe nada del reloj. Ver el ADR 0013.

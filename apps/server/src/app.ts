@@ -6,6 +6,7 @@ import type { ServerConfig } from './config.js';
 import { silentLogger } from './logger.js';
 import type { Logger } from './logger.js';
 import { BotDriver } from './bots/bot-driver.js';
+import { registerClientErrors } from './monitoring/client-errors.js';
 import { attachSocketServer } from './net/socket-server.js';
 import { RoomManager } from './rooms/room-manager.js';
 import { TradeExpiry } from './rooms/trade-expiry.js';
@@ -59,6 +60,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   if (restored > 0) logger.info({ event: 'rooms_restored', count: restored }, 'salas recuperadas');
 
   const app = buildApp();
+  registerClientErrors(app, { logger, clock });
   const { io, deliver } = attachSocketServer(app.server, { manager, config, logger, clock });
   const bots = new BotDriver(manager, deliver, logger, { delayMs: config.botDelayMs });
   const tradeExpiry = new TradeExpiry(manager, deliver, logger, config.tradeOfferTtlMs);
