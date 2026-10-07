@@ -30,6 +30,11 @@ export class BotDriver {
     manager.onChange((code) => this.schedule(code));
   }
 
+  /** Revisa todas las salas (al arrancar, tras recuperarlas del almacén). */
+  resumeAll(): void {
+    for (const code of this.manager.codes()) this.schedule(code);
+  }
+
   stop(): void {
     for (const timer of this.timers.values()) clearTimeout(timer);
     this.timers.clear();

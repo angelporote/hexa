@@ -8,6 +8,7 @@ import type { Logger } from './logger.js';
 import { BotDriver } from './bots/bot-driver.js';
 import { attachSocketServer } from './net/socket-server.js';
 import { RoomManager } from './rooms/room-manager.js';
+import { TradeExpiry } from './rooms/trade-expiry.js';
 import { createSeed, createToken, randomInt } from './sessions/tokens.js';
 import { MemoryRoomStore } from './store/room-store.js';
 import type { RoomStore } from './store/room-store.js';
@@ -57,6 +58,10 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   const app = buildApp();
   const { io, deliver } = attachSocketServer(app.server, { manager, config, logger, clock });
   const bots = new BotDriver(manager, deliver, logger, { delayMs: config.botDelayMs });
+  const tradeExpiry = new TradeExpiry(manager, deliver, logger, config.tradeOfferTtlMs);
+  // Las salas recuperadas del almacén pueden tener bots por jugar y ofertas abiertas.
+  tradeExpiry.checkAll();
+  bots.resumeAll();
 
   const sweeper = setInterval(() => manager.sweep(), config.sweepIntervalMs);
   sweeper.unref();
@@ -67,6 +72,7 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   app.addHook('onClose', async () => {
     clearInterval(sweeper);
     bots.stop();
+    tradeExpiry.stop();
     await io.close();
   });
 

@@ -77,6 +77,8 @@ export function describeEvent(event: GameEvent, ctx: DescribeContext): string {
     case 'TRADE_ACCEPTED':
     case 'TRADE_REJECTED':
       return t(`event.${event.type}`, { player: name(event.player) });
+    case 'TRADE_COUNTERED':
+      return t('event.TRADE_COUNTERED', { player: name(event.player) });
     case 'TRADE_CANCELLED':
       return t('event.TRADE_CANCELLED');
     case 'TRADE_COMPLETED':

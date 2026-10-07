@@ -139,6 +139,23 @@ describe('actionSchema', () => {
       actionSchema.safeParse({ type: 'OFFER_TRADE', to: ['p1'], give: none, want: none }).success,
     ).toBe(true);
     expect(actionSchema.safeParse({ type: 'DISCARD', resources: none }).success).toBe(true);
+    expect(
+      actionSchema.safeParse({
+        type: 'COUNTER_TRADE',
+        offerId: 1,
+        give: { ...none, r3: 2 },
+        want: { ...none, r1: 1 },
+      }).success,
+    ).toBe(true);
+    expect(
+      actionSchema.safeParse({ type: 'CONFIRM_COUNTER', offerId: 1, with: 'p2' }).success,
+    ).toBe(true);
+    expect(actionSchema.safeParse({ type: 'COUNTER_TRADE', offerId: 1, give: none }).success).toBe(
+      false,
+    );
+    expect(
+      actionSchema.safeParse({ type: 'CONFIRM_COUNTER', offerId: 0, with: 'p2' }).success,
+    ).toBe(false);
   });
 
   it('rechaza tipos desconocidos, campos de más o de menos y valores fuera de rango', () => {

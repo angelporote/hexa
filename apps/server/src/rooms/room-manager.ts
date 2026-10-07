@@ -84,6 +84,11 @@ export class RoomManager {
     return this.rooms.size;
   }
 
+  /** Códigos de todas las salas, para recorrerlas (p. ej. tras recuperarlas del almacén). */
+  codes(): string[] {
+    return [...this.rooms.keys()];
+  }
+
   getRoom(code: string): RoomData | undefined {
     return this.rooms.get(code);
   }
@@ -398,6 +403,17 @@ export class RoomManager {
       .filter((x) => x.id !== conn)
       .map((x) => ({ to: x.id, event: 'game:preview' as const, payload: { playerId, target } }));
     return ok({ data: {}, out });
+  }
+
+  /**
+   * Cancela por tiempo la oferta de comercio abierta, en nombre de su oferente. Es una acción
+   * normal del juego (queda en el registro), no un estado especial.
+   */
+  expireTrade(code: string, offerId: number): ManagerResult<Record<string, never>> {
+    const room = this.rooms.get(code);
+    const offer = room?.game?.snapshot.pendingTrade;
+    if (!room || !offer || offer.id !== offerId) return err('NO_SUCH_OFFER');
+    return this.applyFor(room, offer.from, { type: 'CANCEL_TRADE', offerId });
   }
 
   /** Acción de un bot del servidor: solo vale para asientos marcados como bot. */

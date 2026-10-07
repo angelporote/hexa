@@ -40,6 +40,17 @@ export const actionSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('REJECT_TRADE'), offerId: z.number().int().min(1) }).strict(),
   z.object({ type: z.literal('CANCEL_TRADE'), offerId: z.number().int().min(1) }).strict(),
   z
+    .object({
+      type: z.literal('COUNTER_TRADE'),
+      offerId: z.number().int().min(1),
+      give: counts,
+      want: counts,
+    })
+    .strict(),
+  z
+    .object({ type: z.literal('CONFIRM_COUNTER'), offerId: z.number().int().min(1), with: id })
+    .strict(),
+  z
     .object({ type: z.literal('CONFIRM_TRADE'), offerId: z.number().int().min(1), with: id })
     .strict(),
   z.object({ type: z.literal('END_TURN') }).strict(),

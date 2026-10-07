@@ -151,6 +151,7 @@ export const es = {
   'event.TRADE_OFFERED': '{player} propone un intercambio',
   'event.TRADE_ACCEPTED': '{player} acepta el intercambio',
   'event.TRADE_REJECTED': '{player} rechaza el intercambio',
+  'event.TRADE_COUNTERED': '{player} propone otras condiciones',
   'event.TRADE_CANCELLED': 'Se cancela la oferta de intercambio',
   'event.TRADE_COMPLETED': '{player} y {partner} cierran un intercambio',
   'event.AWARD_CHANGED.longestRoad': '{holder} tiene ahora el camino más largo',

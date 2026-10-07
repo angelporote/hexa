@@ -45,6 +45,7 @@ const samples: Record<GameEvent['type'], GameEvent[]> = {
   TRADE_OFFERED: [{ type: 'TRADE_OFFERED', offer }],
   TRADE_ACCEPTED: [{ type: 'TRADE_ACCEPTED', player: 'p1', offerId: 1 }],
   TRADE_REJECTED: [{ type: 'TRADE_REJECTED', player: 'p1', offerId: 1 }],
+  TRADE_COUNTERED: [{ type: 'TRADE_COUNTERED', player: 'p1', offerId: 1 }],
   TRADE_CANCELLED: [{ type: 'TRADE_CANCELLED', offerId: 1 }],
   TRADE_COMPLETED: [{ type: 'TRADE_COMPLETED', offerId: 1, from: 'p0', with: 'p1' }],
   AWARD_CHANGED: [

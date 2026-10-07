@@ -153,6 +153,7 @@ export const en: Record<MessageKey, string> = {
   'event.TRADE_OFFERED': '{player} proposes a trade',
   'event.TRADE_ACCEPTED': '{player} accepts the trade',
   'event.TRADE_REJECTED': '{player} rejects the trade',
+  'event.TRADE_COUNTERED': '{player} proposes different terms',
   'event.TRADE_CANCELLED': 'The trade offer is cancelled',
   'event.TRADE_COMPLETED': '{player} and {partner} complete a trade',
   'event.AWARD_CHANGED.longestRoad': '{holder} now has the longest road',
