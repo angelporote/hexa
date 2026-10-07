@@ -10,7 +10,8 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^test"],
+      "env": ["REDIS_URL"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
