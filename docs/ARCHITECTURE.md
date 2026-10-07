@@ -48,7 +48,7 @@ hexa/
 │  │     ├─ net/             conexión, validación de mensajes, rate limit
 │  │     ├─ rooms/           ciclo de vida de salas, lobby, códigos
 │  │     ├─ sessions/        tokens de asiento y reconexión
-│  │     ├─ store/           RoomStore (memoria, Redis)
+│  │     ├─ store/           RoomStore (memoria, Redis, escritura diferida)
 │  │     └─ bots/            bots que juegan en el servidor
 │  └─ web/                   Vite + React
 │     └─ src/
@@ -169,14 +169,16 @@ Las peticiones del cliente reciben una respuesta (ack) `{ ok: true, data } | { o
 
 ## Persistencia y reproducibilidad
 
-Cada sala guarda `seed + config + lista de acciones`. Como el motor es determinista, reaplicar las acciones reconstruye exactamente la partida. Esto permite reproducir bugs, sobrevivir a reinicios (fase 7) y, más adelante, repeticiones de partidas. Se guarda además una instantánea del estado para no tener que reaplicarlo todo en cada carga.
+Cada sala guarda `seed + config + lista de acciones`. Como el motor es determinista, reaplicar las acciones reconstruye exactamente la partida. Esto permite reproducir bugs, sobrevivir a reinicios y, más adelante, repeticiones de partidas. Se guarda además una instantánea del estado para no tener que reaplicarlo todo en cada carga.
+
+El gestor mantiene las salas en memoria y las escribe en un `RoomStore` tras cada cambio sin esperar. Con `REDIS_URL` el almacén es `RedisRoomStore` (una clave JSON por sala con caducidad) envuelto en `WriteBehindStore`, que junta las escrituras, reintenta si Redis cae y vuelca lo pendiente al apagar; sin `REDIS_URL` se usa memoria (desarrollo). Detalles en el ADR 0012.
 
 ## Plan de escalado
 
 | Etapa | Cuándo                    | Cómo                                                                                                                                |
 | ----- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | 1     | Desarrollo y beta privada | Una instancia, salas en memoria.                                                                                                    |
-| 2     | Beta pública              | `RoomStore` en Redis; las salas sobreviven a reinicios y despliegues.                                                               |
+| 2     | Beta pública              | `RoomStore` en Redis (hecho, ADR 0012); las salas sobreviven a reinicios y despliegues.                                             |
 | 3     | Crecimiento               | Varias instancias; adaptador Redis de Socket.IO; cada sala anclada a una instancia (enrutado por código de sala / sticky sessions). |
 | 4     | Producto con cuentas      | Postgres para usuarios, estadísticas y clasificación; Redis sigue para partidas en curso.                                           |
 

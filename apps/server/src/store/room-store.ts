@@ -42,12 +42,14 @@ export interface RoomData {
 /**
  * Almacén de salas. El gestor mantiene las salas en memoria y escribe aquí tras cada cambio;
  * al arrancar las recupera con `loadAll`. La implementación en memoria es la de desarrollo;
- * en la fase 7 se sustituirá por Redis sin tocar el gestor.
+ * Redis (`RedisRoomStore`, envuelto en `WriteBehindStore`) la sustituye en producción.
  */
 export interface RoomStore {
   save(room: RoomData): Promise<void>;
   delete(code: string): Promise<void>;
   loadAll(): Promise<RoomData[]>;
+  /** Libera recursos (y vuelca lo pendiente) al apagar el servidor. */
+  close?(): Promise<void>;
 }
 
 export class MemoryRoomStore implements RoomStore {

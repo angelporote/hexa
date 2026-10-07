@@ -12,6 +12,8 @@ export interface ServerConfig {
   readonly tradeOfferTtlMs: number;
   /** Límite de mensajes por socket: cubo con `burst` fichas que se rellena a `perSecond`. */
   readonly rateLimit: { readonly burst: number; readonly perSecond: number };
+  /** Redis donde guardar las salas; `null` = en memoria (se pierden al reiniciar). */
+  readonly redisUrl: string | null;
 }
 
 type Env = Readonly<Record<string, string | undefined>>;
@@ -34,5 +36,6 @@ export function loadConfig(env: Env): ServerConfig {
     botDelayMs: int(env['BOT_DELAY_MS'], 700),
     tradeOfferTtlMs: int(env['TRADE_TTL_MS'], 120 * 1000),
     rateLimit: { burst: int(env['RATE_BURST'], 30), perSecond: int(env['RATE_PER_SECOND'], 10) },
+    redisUrl: env['REDIS_URL']?.trim() || null,
   };
 }

@@ -211,6 +211,9 @@ importers:
       '@hexa/protocol':
         specifier: workspace:*
         version: link:../../packages/protocol
+      '@redis/client':
+        specifier: ^6.3.0
+        version: 6.3.0
       fastify:
         specifier: ^5.12.5
         version: 5.12.5
@@ -649,6 +652,18 @@ packages:
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+
+  '@redis/client@6.3.0':
+    resolution: {integrity: sha512-fHrjwGCBvAANGi+TuRuwKi83sIOzgHr8eh+Uf48w3fSX7Hhrz174NrWqfJhAC2vnN0d/tfaZpdr6+o6JC3QHwg==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@node-rs/xxhash': ^1.1.0
+      '@opentelemetry/api': '>=1 <2'
+    peerDependenciesMeta:
+      '@node-rs/xxhash':
+        optional: true
+      '@opentelemetry/api':
+        optional: true
 
   '@rolldown/binding-android-arm-eabi@1.2.12':
     resolution: {integrity: sha512-dB/a1214qKfHMXCpgqR4OZT+jS4kTyEXbQGJPqzobt5EwH5rX080pxE37alt3RzvR1bf1Yz/yGqRfrYAxuPw0A==}
@@ -2099,6 +2114,8 @@ snapshots:
   '@oxc-project/types@0.152.0': {}
 
   '@pinojs/redact@0.4.0': {}
+
+  '@redis/client@6.3.0': {}
 
   '@rolldown/binding-android-arm-eabi@1.2.12':
     optional: true

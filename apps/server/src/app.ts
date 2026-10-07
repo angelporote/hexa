@@ -43,8 +43,9 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
   const logger = options.logger ?? silentLogger;
   const clock = options.clock ?? Date.now;
 
+  const store: RoomStore = options.store ?? new MemoryRoomStore();
   const manager = new RoomManager({
-    store: options.store ?? new MemoryRoomStore(),
+    store,
     logger,
     clock,
     randomInt,
@@ -74,6 +75,8 @@ export async function buildServer(options: ServerOptions = {}): Promise<ServerHa
     bots.stop();
     tradeExpiry.stop();
     await io.close();
+    // Lo último: las desconexiones de arriba también cambian las salas y deben quedar guardadas.
+    await store.close?.();
   });
 
   return { app, io, manager, config, close: () => app.close() };
