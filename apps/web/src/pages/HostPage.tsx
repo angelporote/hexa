@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useI18n } from '../i18n/index.js';
-import { ConnectionBanner } from '../host/ConnectionBanner.js';
+import { ConnectionBanner } from '../components/ConnectionBanner.js';
 import { GameScreen } from '../host/GameScreen.js';
-import { LanguageSwitch } from '../host/LanguageSwitch.js';
+import { LanguageSwitch } from '../components/LanguageSwitch.js';
 import { Lobby } from '../host/Lobby.js';
 import { useConnection, useSnapshot } from '../net/provider.js';
 

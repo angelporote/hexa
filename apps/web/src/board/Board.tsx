@@ -2,10 +2,26 @@ import { useMemo } from 'react';
 import { SEA_COLOR } from '@hexa/theme';
 import type { Locale } from '@hexa/theme';
 import type { PlayerView } from '@hexa/engine';
+import type { PreviewTarget } from '@hexa/protocol';
 import { HexTile } from './HexTile.js';
 import { PortBadge } from './PortBadge.js';
 import { Building, Road, Robber } from './Pieces.js';
+import { EdgeTarget, HexTarget, PreviewMark, VertexTarget } from './Overlays.js';
 import { layoutBoard } from './geometry.js';
+import type { BoardLayout } from './geometry.js';
+
+export type ViewBox = BoardLayout['viewBox'];
+
+/** Posiciones que se pueden tocar (mando móvil). */
+export interface Interaction {
+  readonly vertices?: ReadonlySet<string>;
+  readonly edges?: ReadonlySet<string>;
+  readonly hexes?: ReadonlySet<string>;
+  readonly selected: PreviewTarget | null;
+  /** Color (`c1`…) del jugador que elige, para pintar su selección. */
+  readonly color: string;
+  readonly onPick: (target: PreviewTarget) => void;
+}
 
 export interface BoardProps {
   board: PlayerView['board'];
@@ -16,16 +32,41 @@ export interface BoardProps {
   colorOf: (playerId: string) => string;
   locale: Locale;
   label: string;
+  /** Zona visible; por defecto, el tablero entero. Permite el zoom del mando móvil. */
+  viewBox?: ViewBox;
+  /** Posiciones elegibles; si se omite, el tablero es solo de lectura. */
+  interaction?: Interaction;
+  /** Lo que está a punto de elegir el jugador de turno (se muestra en el host). */
+  preview?: { target: PreviewTarget; color: string } | null;
+}
+
+/** Disposición del tablero a partir de la vista; separada para reutilizarla en el zoom. */
+export function useBoardLayout(board: PlayerView['board']): BoardLayout {
+  return useMemo(() => layoutBoard(board.topology, board.ports), [board]);
 }
 
 /**
  * Tablero en SVG generado desde la vista: se adapta a cualquier resolución por su `viewBox`.
  * Solo dibuja; no decide nada de las reglas.
  */
-export function Board({ board, buildings, roads, robber, colorOf, locale, label }: BoardProps) {
-  const layout = useMemo(() => layoutBoard(board.topology, board.ports), [board]);
-  const { x, y, w, h } = layout.viewBox;
+export function Board({
+  board,
+  buildings,
+  roads,
+  robber,
+  colorOf,
+  locale,
+  label,
+  viewBox,
+  interaction,
+  preview,
+}: BoardProps) {
+  const layout = useBoardLayout(board);
+  const { x, y, w, h } = viewBox ?? layout.viewBox;
+  const base = layout.viewBox;
   const robberHex = layout.hexes.find((hex) => hex.id === robber);
+  const isSelected = (kind: PreviewTarget['kind'], id: string) =>
+    interaction?.selected?.kind === kind && interaction.selected.id === id;
 
   return (
     <svg
@@ -35,7 +76,7 @@ export function Board({ board, buildings, roads, robber, colorOf, locale, label 
       aria-label={label}
       preserveAspectRatio="xMidYMid meet"
     >
-      <rect x={x} y={y} width={w} height={h} fill={SEA_COLOR} rx={24} />
+      <rect x={base.x} y={base.y} width={base.w} height={base.h} fill={SEA_COLOR} rx={24} />
       {board.ports.map((port) => {
         const laid = layout.ports.find((p) => p.edge === port.edge);
         return laid ? <PortBadge key={port.edge} port={laid} kind={port.kind} /> : null;
@@ -63,6 +104,51 @@ export function Board({ board, buildings, roads, robber, colorOf, locale, label 
         ) : null;
       })}
       {robberHex && <Robber at={robberHex.center} />}
+
+      {interaction?.hexes &&
+        layout.hexes
+          .filter((hex) => interaction.hexes?.has(hex.id))
+          .map((hex) => (
+            <HexTarget
+              key={hex.id}
+              id={hex.id}
+              corners={hex.corners}
+              selected={isSelected('hex', hex.id)}
+              color={interaction.color}
+              onPick={() => interaction.onPick({ kind: 'hex', id: hex.id })}
+            />
+          ))}
+      {interaction?.edges &&
+        [...interaction.edges].map((id) => {
+          const edge = layout.edges[id];
+          return edge ? (
+            <EdgeTarget
+              key={id}
+              id={id}
+              a={edge.a}
+              b={edge.b}
+              selected={isSelected('edge', id)}
+              color={interaction.color}
+              onPick={() => interaction.onPick({ kind: 'edge', id })}
+            />
+          ) : null;
+        })}
+      {interaction?.vertices &&
+        [...interaction.vertices].map((id) => {
+          const at = layout.vertices[id];
+          return at ? (
+            <VertexTarget
+              key={id}
+              id={id}
+              at={at}
+              selected={isSelected('vertex', id)}
+              color={interaction.color}
+              onPick={() => interaction.onPick({ kind: 'vertex', id })}
+            />
+          ) : null;
+        })}
+
+      {preview && <PreviewMark target={preview.target} color={preview.color} layout={layout} />}
     </svg>
   );
 }

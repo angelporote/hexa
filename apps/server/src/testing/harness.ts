@@ -48,7 +48,13 @@ export class TestClient {
   inspect: ((event: ServerEventName, payload: unknown) => void) | null = null;
 
   private constructor(readonly socket: Socket) {
-    const names: ServerEventName[] = ['room:state', 'game:view', 'game:events', 'error'];
+    const names: ServerEventName[] = [
+      'room:state',
+      'game:view',
+      'game:events',
+      'game:preview',
+      'error',
+    ];
     for (const name of names) {
       socket.on(name, (payload: unknown) => {
         this.inspect?.(name, payload);

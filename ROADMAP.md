@@ -4,10 +4,10 @@
 
 > Claude Code actualiza esta sección al final de cada sesión.
 
-- **Fase en curso:** 3 completada; la siguiente es la Fase 4 (mando móvil)
-- **Última tarea completada:** 3.6
-- **Bloqueos / dudas abiertas:** ninguno. Nota: para que un móvil entre por el QR en desarrollo hay que abrir la pantalla del host por la IP del ordenador (no `localhost`). Las páginas `/join` y `/play/:code` son marcadores de posición hasta la fase 4.
-- **Próximo paso:** Fase 4, tarea 4.1 (unirse por código o QR desde el móvil)
+- **Fase en curso:** 4 (todo hecho salvo la 4.8, pruebas en dispositivos reales, que necesita a una persona con los móviles)
+- **Última tarea completada:** 4.7
+- **Bloqueos / dudas abiertas:** 4.8 y el criterio M2 (4 personas con 4 móviles) requieren dispositivos reales; la lista de comprobación está en `docs/devices.md`. Verificado en emulación de móvil contra un servidor real. En desarrollo, abrir el host por la IP del ordenador (no `localhost`) para que el QR sirva a los móviles.
+- **Próximo paso:** probar `docs/devices.md` con móviles reales (4.8). En paralelo se puede empezar la Fase 5 (comercio entre jugadores), que no depende de ello.
 
 ## Objetivo del MVP publicable
 
@@ -103,13 +103,13 @@ Un juego web en el que una pantalla muestra el tablero, de 3 a 4 jugadores se un
 
 **Objetivo:** jugar una partida completa desde el móvil.
 
-- [ ] **4.1** Unirse por código o QR; elegir nombre y color; esperar en el lobby.
-- [ ] **4.2** Mano privada: recursos, cartas de desarrollo, costes de construcción a la vista.
-- [ ] **4.3** Botones generados a partir de `legalActions`: tirar, construir, comprar, jugar carta, terminar turno.
-- [ ] **4.4** Colocación: minitablero en el móvil con zoom y solo las posiciones legales resaltadas; confirmación en dos pasos; la elección se resalta también en el host.
-- [ ] **4.5** Flujos del 7 (descarte, ladrón, robo) y de cada carta de desarrollo.
-- [ ] **4.6** Comercio con el banco y los puertos.
-- [ ] **4.7** Wake Lock para que la pantalla no se apague, reconexión automática con indicador visible, vibración al empezar tu turno.
+- [x] **4.1** Unirse por código o QR; elegir nombre y color; esperar en el lobby.
+- [x] **4.2** Mano privada: recursos, cartas de desarrollo, costes de construcción a la vista.
+- [x] **4.3** Botones generados a partir de `legalActions`: tirar, construir, comprar, jugar carta, terminar turno.
+- [x] **4.4** Colocación: minitablero en el móvil con zoom y solo las posiciones legales resaltadas; confirmación en dos pasos; la elección se resalta también en el host.
+- [x] **4.5** Flujos del 7 (descarte, ladrón, robo) y de cada carta de desarrollo.
+- [x] **4.6** Comercio con el banco y los puertos.
+- [x] **4.7** Wake Lock para que la pantalla no se apague, reconexión automática con indicador visible, vibración al empezar tu turno.
 - [ ] **4.8** Pruebas manuales en iOS Safari y Android Chrome reales; documentar incidencias en `docs/devices.md`.
 
 **Criterios de aceptación (M2):** 4 personas juegan una partida completa con sus móviles; bloquear y desbloquear un móvil no rompe la partida.

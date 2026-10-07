@@ -60,6 +60,8 @@ export function attachSocketServer(
         return manager.removeBot(socketId, msg.payload.playerId);
       case 'game:action':
         return manager.action(socketId, msg.payload.action);
+      case 'game:preview':
+        return manager.preview(socketId, msg.payload.target);
       case 'session:resume':
         return manager.resume(socketId, msg.payload);
     }

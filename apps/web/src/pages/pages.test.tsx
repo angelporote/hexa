@@ -33,20 +33,24 @@ describe('rutas', () => {
     expect(screen.getByRole('button', { name: 'EN' }).getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('/join y /play/:code muestran el código recibido', () => {
+  it('/join muestra el formulario con el código de la URL en mayúsculas', () => {
     render(
-      <Providers connection={makeConnection().connection} route="/join?code=WXYZ">
+      <Providers connection={makeConnection().connection} route="/join?code=wxyz">
         <App />
       </Providers>,
     );
-    expect(screen.getByText('WXYZ')).toBeTruthy();
-    cleanup();
+    expect((screen.getByLabelText(/Código de sala/) as HTMLInputElement).value).toBe('WXYZ');
+  });
+
+  it('/play/:code sin sesión vuelve al formulario con el código escrito', async () => {
     render(
       <Providers connection={makeConnection().connection} route="/play/abcd">
         <App />
       </Providers>,
     );
-    expect(screen.getByText('ABCD')).toBeTruthy();
+    await waitFor(() =>
+      expect((screen.getByLabelText(/Código de sala/) as HTMLInputElement).value).toBe('ABCD'),
+    );
   });
 
   it('una ruta desconocida muestra el 404', () => {

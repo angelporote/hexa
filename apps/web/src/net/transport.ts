@@ -16,6 +16,7 @@ const SERVER_EVENTS: readonly ServerEventName[] = [
   'room:state',
   'game:view',
   'game:events',
+  'game:preview',
   'error',
 ];
 

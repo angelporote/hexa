@@ -3,6 +3,7 @@ import type { Action, GameEvent, GameState, PlayerId, Result } from '@hexa/engin
 import { MAX_PLAYERS, MIN_PLAYERS_TO_START, PLAYER_COLORS } from '@hexa/protocol';
 import type {
   ClientPayloads,
+  PreviewTarget,
   ErrorCode,
   PlayerColor,
   Role,
@@ -379,6 +380,24 @@ export class RoomManager {
     const { room, c } = found.value;
     if (c.role !== 'player' || c.playerId === null) return err('NOT_A_PLAYER');
     return this.applyFor(room, c.playerId, action);
+  }
+
+  /**
+   * Enseña a los demás lo que el jugador de turno está a punto de elegir (no cambia el juego ni
+   * se guarda). Solo lo puede enviar quien tiene el turno.
+   */
+  preview(conn: ConnectionId, target: PreviewTarget | null): ManagerResult<Record<string, never>> {
+    const found = this.require(conn);
+    if (!found.ok) return found;
+    const { room, c } = found.value;
+    if (c.role !== 'player' || c.playerId === null) return err('NOT_A_PLAYER');
+    if (!room.game) return err('GAME_NOT_STARTED');
+    if (room.game.snapshot.turn.player !== c.playerId) return err('NOT_YOUR_TURN');
+    const playerId = c.playerId;
+    const out: OutMessage[] = this.connectionsOf(room.code)
+      .filter((x) => x.id !== conn)
+      .map((x) => ({ to: x.id, event: 'game:preview' as const, payload: { playerId, target } }));
+    return ok({ data: {}, out });
   }
 
   /** Acción de un bot del servidor: solo vale para asientos marcados como bot. */

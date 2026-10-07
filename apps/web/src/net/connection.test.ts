@@ -214,4 +214,68 @@ describe('GameConnection', () => {
     transport.emit('room:state', roomState);
     expect(calls).toBe(before);
   });
+
+  it('guarda la vista previa del jugador de turno y la borra con la siguiente vista', () => {
+    const { connection, transport } = setup();
+    connection.start('host');
+    const view = (n: number) => ({
+      phase: { type: 'roll' },
+      board: {},
+      legalActions: [],
+      marker: n,
+    });
+    transport.emit('game:view', { seq: 1, view: view(1) });
+    transport.emit('game:preview', { playerId: 'p0', target: { kind: 'vertex', id: 'v7' } });
+    expect(connection.getSnapshot().preview).toEqual({
+      playerId: 'p0',
+      target: { kind: 'vertex', id: 'v7' },
+    });
+    // una vista repetida (misma seq, p. ej. al reconectar) no la borra
+    transport.emit('game:view', { seq: 1, view: view(1) });
+    expect(connection.getSnapshot().preview).not.toBeNull();
+    // una vista nueva sí: ya se ha actuado
+    transport.emit('game:view', { seq: 2, view: view(2) });
+    expect(connection.getSnapshot().preview).toBeNull();
+    // y el jugador puede retirarla
+    transport.emit('game:preview', { playerId: 'p0', target: { kind: 'hex', id: 'h0,0' } });
+    transport.emit('game:preview', { playerId: 'p0', target: null });
+    expect(connection.getSnapshot().preview).toBeNull();
+  });
+
+  it('ignora vistas previas mal formadas', () => {
+    const { connection, transport } = setup();
+    connection.start('host');
+    const warn = console.warn;
+    console.warn = () => undefined;
+    try {
+      transport.emit('game:preview', { playerId: 'p0', target: { kind: 'planet', id: 'x' } });
+    } finally {
+      console.warn = warn;
+    }
+    expect(connection.getSnapshot().preview).toBeNull();
+  });
+
+  it('abrir la conexión con otra clave de sesión la reinicia y recupera la sesión de esa clave', async () => {
+    const { connection, transport, store } = setup(session);
+    transport.responses.set('session:resume', { ok: true, data: session });
+    connection.start('host');
+    await flush();
+    expect(connection.getSnapshot().session).toEqual(session);
+
+    const playerSession = {
+      ...session,
+      role: 'player' as const,
+      playerId: 'p1',
+      token: 'p'.repeat(24),
+    };
+    store.set('player', playerSession);
+    transport.responses.set('session:resume', { ok: true, data: playerSession });
+    connection.start('player');
+    await flush();
+    expect(transport.closed).toBe(true);
+    expect(connection.getSnapshot().session).toEqual(playerSession);
+    expect(
+      transport.sent.filter((m) => m.event === 'session:resume').map((m) => m.payload['token']),
+    ).toEqual([session.token, playerSession.token]);
+  });
 });

@@ -215,6 +215,25 @@ describe('seguridad en partida', () => {
     ).toEqual({ ok: false, error: 'INVALID_MESSAGE' });
     expect(await turnPlayer.request('game:action', { action })).toEqual({ ok: true, data: {} });
 
+    // La elección a medias del jugador de turno llega al host y a los demás, no a sí mismo.
+    const target = { kind: 'vertex', id: 'v1' };
+    expect(await turnPlayer.request('game:preview', { target })).toEqual({ ok: true, data: {} });
+    await until(
+      () => (room.host.events['game:preview']?.length ?? 0) > 0,
+      3000,
+      'vista previa en el host',
+    );
+    expect(room.host.events['game:preview']?.[0]).toEqual({
+      playerId: turnPlayer.playerId,
+      target,
+    });
+    expect(room.spectator.events['game:preview']).toHaveLength(1);
+    expect(turnPlayer.events['game:preview']).toBeUndefined();
+    expect(await other.request('game:preview', { target })).toEqual({
+      ok: false,
+      error: 'NOT_YOUR_TURN',
+    });
+
     // Cada jugador solo conoce el contenido de su propia mano.
     for (const p of room.players) {
       const view = p.view;

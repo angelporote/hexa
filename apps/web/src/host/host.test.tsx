@@ -24,6 +24,7 @@ function snapshotWith(
     seq: 10,
     events: [],
     diceRoll: null,
+    preview: null,
     replaced: false,
     resumeFailed: false,
     ...patch,
@@ -107,6 +108,25 @@ describe('<GameScreen />', () => {
     // lo más reciente va arriba
     const log = screen.getByRole('region', { name: 'Registro' });
     expect(within(log).getAllByRole('listitem')[0]?.textContent).toContain('Luis descarta');
+  });
+
+  it('enseña en el tablero lo que el jugador de turno está a punto de elegir', () => {
+    const view = hostView(setupGame());
+    const vertex = Object.keys(view.board.topology.vertexById)[0] ?? '';
+    const { container } = render(
+      <Providers connection={makeConnection().connection}>
+        <GameScreen
+          view={view}
+          snapshot={snapshotWith(view, {
+            preview: { playerId: 'p1', target: { kind: 'vertex', id: vertex } },
+          })}
+        />
+      </Providers>,
+    );
+    const mark = container.querySelector('[data-preview="vertex"]');
+    expect(mark).not.toBeNull();
+    // lleva el color del jugador que elige (Luis, c2)
+    expect(mark?.getAttribute('stroke')).toBe('#3d8bfd');
   });
 
   it('muestra al ganador cuando termina la partida', () => {

@@ -77,6 +77,14 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
           colorOf={(id) => colorOf(infos, id)}
           locale={locale}
           label={t('app.name')}
+          preview={
+            snapshot.preview
+              ? {
+                  target: snapshot.preview.target,
+                  color: colorOf(infos, snapshot.preview.playerId),
+                }
+              : null
+          }
         />
       </main>
 

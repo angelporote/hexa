@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LanguageSwitch } from '../host/LanguageSwitch.js';
+import { LanguageSwitch } from '../components/LanguageSwitch.js';
 import { useI18n } from '../i18n/index.js';
 
 export function HomePage() {

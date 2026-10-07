@@ -32,6 +32,12 @@ export type Role = z.infer<typeof roleSchema>;
 /** Token secreto de asiento: lo guarda el cliente para reconectar. */
 export const tokenSchema = z.string().min(16).max(128);
 
+/** Elemento del tablero que un jugador está a punto de elegir (se enseña a los demás). */
+export const previewTargetSchema = z
+  .object({ kind: z.enum(['vertex', 'edge', 'hex']), id: z.string().min(1).max(32) })
+  .strict();
+export type PreviewTarget = z.infer<typeof previewTargetSchema>;
+
 // ── Cliente → servidor ───────────────────────────────────────────────────────────────────
 
 export const clientMessageSchemas = {
@@ -65,6 +71,7 @@ export const clientMessageSchemas = {
   'lobby:addBot': z.object({ protocolVersion }).strict(),
   'lobby:removeBot': z.object({ protocolVersion, playerId: z.string().min(1).max(32) }).strict(),
   'game:action': z.object({ protocolVersion, action: actionSchema }).strict(),
+  'game:preview': z.object({ protocolVersion, target: previewTargetSchema.nullable() }).strict(),
   'session:resume': z
     .object({ protocolVersion, code: roomCodeSchema, token: tokenSchema })
     .strict(),
@@ -115,6 +122,7 @@ export const ackSchemas = {
   'lobby:addBot': ack(empty),
   'lobby:removeBot': ack(empty),
   'game:action': ack(empty),
+  'game:preview': ack(empty),
   'session:resume': ack(sessionData),
 } as const satisfies Record<ClientEventName, z.ZodType>;
 
@@ -156,6 +164,9 @@ export const serverMessageSchemas = {
   'room:state': roomStateSchema,
   'game:view': z.object({ seq: z.number().int().min(0), view: viewSchema }).strict(),
   'game:events': z.object({ seq: z.number().int().min(0), events: eventsSchema }).strict(),
+  'game:preview': z
+    .object({ playerId: z.string(), target: previewTargetSchema.nullable() })
+    .strict(),
   error: z.object({ error: errorCodeSchema, detail: z.string().max(200).optional() }).strict(),
 } as const;
 

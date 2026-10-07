@@ -2,6 +2,7 @@ import { PROTOCOL_VERSION, ackSchemas, serverMessageSchemas } from '@hexa/protoc
 import type {
   AckFor,
   ClientEventName,
+  PreviewTarget,
   RoomState,
   ServerEventName,
   SessionData,
@@ -29,6 +30,8 @@ export interface ConnectionSnapshot {
   readonly events: readonly LoggedEvent[];
   /** Última tirada de dados; `key` cambia con cada una para poder reanimarla. */
   readonly diceRoll: { readonly dice: readonly [number, number]; readonly key: number } | null;
+  /** Lo que el jugador de turno está a punto de elegir (efímero; se borra con cada vista nueva). */
+  readonly preview: { readonly playerId: string; readonly target: PreviewTarget } | null;
   /** Otro dispositivo ha tomado esta sesión. */
   readonly replaced: boolean;
   /** La sesión guardada ya no sirve (sala caducada o token inválido). */
@@ -44,6 +47,7 @@ const INITIAL: ConnectionSnapshot = {
   seq: -1,
   events: [],
   diceRoll: null,
+  preview: null,
   replaced: false,
   resumeFailed: false,
 };
@@ -80,6 +84,7 @@ export class GameConnection {
     transport.onServerEvent('room:state', (p) => this.onRoomState(p));
     transport.onServerEvent('game:view', (p) => this.onView(p));
     transport.onServerEvent('game:events', (p) => this.onEvents(p));
+    transport.onServerEvent('game:preview', (p) => this.onPreview(p));
     transport.onServerEvent('error', (p) => this.onError(p));
   }
 
@@ -103,6 +108,8 @@ export class GameConnection {
 
   /** Abre la conexión. `sessionKey` distingue la sesión guardada de la pantalla y la del móvil. */
   start(sessionKey: string): void {
+    // Si ya estaba abierta con otra clave (otra pantalla), se reinicia para recuperar su sesión.
+    if (this.started && this.sessionKey !== sessionKey) this.stop();
     this.sessionKey = sessionKey;
     if (this.started) return;
     this.started = true;
@@ -190,7 +197,15 @@ export class GameConnection {
   async leave(): Promise<void> {
     await this.request('room:leave');
     this.store.remove(this.sessionKey);
-    this.update({ session: null, room: null, view: null, seq: -1, events: [], diceRoll: null });
+    this.update({
+      session: null,
+      room: null,
+      view: null,
+      seq: -1,
+      events: [],
+      diceRoll: null,
+      preview: null,
+    });
   }
 
   // ── Mensajes del servidor ──────────────────────────────────────────────────────────────
@@ -210,7 +225,9 @@ export class GameConnection {
     if (!parsed.success) return this.reject('game:view', parsed.error.issues[0]);
     // Una vista más antigua que la que ya tenemos llega fuera de orden: se ignora.
     if (parsed.data.seq < this.snapshot.seq) return;
-    this.update({ view: parsed.data.view, seq: parsed.data.seq });
+    // Una vista nueva borra el resaltado: ya se ha actuado o ha cambiado la situación.
+    const preview = parsed.data.seq > this.snapshot.seq ? null : this.snapshot.preview;
+    this.update({ view: parsed.data.view, seq: parsed.data.seq, preview });
   }
 
   private onEvents(payload: unknown): void {
@@ -226,6 +243,13 @@ export class GameConnection {
       events: [...this.snapshot.events, ...logged].slice(-MAX_LOGGED_EVENTS),
       diceRoll,
     });
+  }
+
+  private onPreview(payload: unknown): void {
+    const parsed = serverMessageSchemas['game:preview'].safeParse(payload);
+    if (!parsed.success) return this.reject('game:preview', parsed.error.issues[0]);
+    const { playerId, target } = parsed.data;
+    this.update({ preview: target === null ? null : { playerId, target } });
   }
 
   private onError(payload: unknown): void {

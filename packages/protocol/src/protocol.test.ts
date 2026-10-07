@@ -20,6 +20,8 @@ describe('parseClientMessage', () => {
       ['room:leave', { protocolVersion: v }],
       ['lobby:update', { protocolVersion: v, ready: true }],
       ['lobby:start', { protocolVersion: v }],
+      ['game:preview', { protocolVersion: v, target: { kind: 'vertex', id: 'v3' } }],
+      ['game:preview', { protocolVersion: v, target: null }],
       ['lobby:addBot', { protocolVersion: v }],
       ['lobby:removeBot', { protocolVersion: v, playerId: 'p1' }],
       ['game:action', { protocolVersion: v, action: { type: 'ROLL' } }],
@@ -90,6 +92,16 @@ describe('parseClientMessage', () => {
     expect(
       parseClientMessage('room:join', { protocolVersion: v, code: 'ABCD', role: 'player' }).ok,
     ).toBe(false);
+  });
+
+  it('game:preview valida el tipo y el id del elemento', () => {
+    const preview = (target: unknown) =>
+      parseClientMessage('game:preview', { protocolVersion: v, target });
+    expect(preview({ kind: 'planet', id: 'x' }).ok).toBe(false);
+    expect(preview({ kind: 'hex', id: '' }).ok).toBe(false);
+    expect(preview({ kind: 'hex', id: 'x'.repeat(40) }).ok).toBe(false);
+    expect(preview({ kind: 'hex', id: 'h0,0', extra: 1 }).ok).toBe(false);
+    expect(parseClientMessage('game:preview', { protocolVersion: v }).ok).toBe(false);
   });
 
   it('lobby:update exige al menos un cambio', () => {
