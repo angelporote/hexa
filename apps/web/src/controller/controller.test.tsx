@@ -506,7 +506,7 @@ describe('unirse y sala de espera desde el móvil', () => {
       </Providers>,
     );
     fireEvent.change(screen.getByLabelText('Tu nombre'), { target: { value: '  Ana  ' } });
-    fireEvent.click(screen.getByLabelText('Azul'));
+    fireEvent.click(screen.getByLabelText('Violeta'));
     fireEvent.click(screen.getByRole('button', { name: 'Unirme' }));
     await waitFor(() => expect(transport.sent.map((s) => s.event)).toContain('room:join'));
     expect(transport.sent.find((s) => s.event === 'room:join')?.payload).toMatchObject({
@@ -607,8 +607,8 @@ describe('unirse y sala de espera desde el móvil', () => {
     );
     expect(transport.sent.find((s) => s.event === 'lobby:update')?.payload['ready']).toBe(true);
 
-    expect((screen.getByLabelText('Azul') as HTMLInputElement).disabled).toBe(true); // lo tiene Luis
-    fireEvent.click(screen.getByLabelText('Naranja'));
+    expect((screen.getByLabelText('Violeta') as HTMLInputElement).disabled).toBe(true); // lo tiene Luis
+    fireEvent.click(screen.getByLabelText('Ámbar'));
     await waitFor(() =>
       expect(transport.sent.filter((s) => s.event === 'lobby:update')).toHaveLength(2),
     );

@@ -6,15 +6,17 @@ Estado de la tarea 4.8 del ROADMAP. Aquí se anotan las incidencias de cada disp
 
 Hecho por Claude en el navegador integrado (emulación de móvil de 375 × 812) contra un servidor real, con el host en otra pestaña:
 
-| Comprobación                                                                          | Resultado |
-| ------------------------------------------------------------------------------------- | --------- |
-| Unirse por URL del QR (`/join?code=XXXX`), nombre y color                             | Correcto  |
-| Sala de espera, marcarse listo, cambiar de color                                      | Correcto  |
-| Colocación inicial con confirmación en dos pasos; el host muestra la elección en vivo | Correcto  |
-| Tirar, terminar turno, banco, descarte tras un 7, mover el ladrón                     | Correcto  |
-| Recarga de la pantalla del host: recupera la sala y la partida                        | Correcto  |
-| Fin de partida: aviso de ganador en el host y mensaje en el móvil                     | Correcto  |
-| Tests automáticos de componentes, hooks (Wake Lock, vibración), zoom/arrastre y red   | 110 tests |
+| Comprobación                                                                                                       | Resultado     |
+| ------------------------------------------------------------------------------------------------------------------ | ------------- |
+| Unirse por URL del QR (`/join?code=XXXX`), nombre y color                                                          | Correcto      |
+| Sala de espera, marcarse listo, cambiar de color                                                                   | Correcto      |
+| Colocación inicial con confirmación en dos pasos; el host muestra la elección en vivo                              | Correcto      |
+| Tirar, terminar turno, banco, descarte tras un 7, mover el ladrón                                                  | Correcto      |
+| Recarga de la pantalla del host: recupera la sala y la partida                                                     | Correcto      |
+| Fin de partida: aviso de ganador en el host y mensaje en el móvil                                                  | Correcto      |
+| Tests automáticos de componentes, hooks (Wake Lock, vibración), zoom/arrastre y red                                | 110 tests     |
+| Tamaños táctiles (7.4): auditoría de todos los controles de portada, unirse, sala de espera y partida en 375 × 812 | Todos ≥ 44 px |
+| Colores y formas de jugador (7.4): tablero con cuatro jugadores, tarjetas y selector de color                      | Correcto      |
 
 Limitaciones de esa emulación: no hay pantalla táctil real (los clics son de ratón), el navegador integrado no implementa la vibración y no se puede bloquear/desbloquear un teléfono de verdad.
 
@@ -35,6 +37,7 @@ Abre `http://<IP-del-ordenador>:5173/host` en la pantalla grande (con la IP, no 
 - [ ] Los botones y los vértices del tablero se pueden tocar con el dedo sin fallar (comprobar sobre todo el vértice cerca de otro).
 - [ ] Pellizcar para ampliar el tablero y arrastrar funciona sin que la página haga zoom ni scroll por su cuenta.
 - [ ] Un arrastre no elige una posición por accidente.
+- [ ] Se distinguen los cuatro jugadores en el tablero por su forma (● ■ ▲ ◆) y por el trazo de sus caminos, también en exteriores o con poco brillo. Si alguien con daltonismo puede probarlo, mejor.
 - [ ] La pantalla no se apaga durante la partida (Wake Lock). Anotar versión: iOS lo soporta desde 16.4.
 - [ ] El móvil vibra al empezar tu turno (en iOS Safari no existe la API de vibración: es esperable).
 - [ ] **Bloquear y desbloquear el móvil** a mitad de partida: vuelve solo a su asiento y a su vista, con el indicador de reconexión visible mientras tanto.

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { PlayerView } from '@hexa/engine';
+import { playerColors } from '@hexa/theme';
 import type { ConnectionSnapshot } from '../net/connection.js';
 import { GameScreen } from './GameScreen.js';
 import { Lobby } from './Lobby.js';
@@ -127,7 +128,7 @@ describe('<GameScreen />', () => {
     const mark = container.querySelector('[data-preview="vertex"]');
     expect(mark).not.toBeNull();
     // lleva el color del jugador que elige (Luis, c2)
-    expect(mark?.getAttribute('stroke')).toBe('#3d8bfd');
+    expect(mark?.getAttribute('stroke')).toBe(playerColors.c2.fill);
   });
 
   it('muestra al ganador cuando termina la partida', () => {

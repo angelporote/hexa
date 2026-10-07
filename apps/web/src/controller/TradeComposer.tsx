@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { RESOURCE_IDS } from '@hexa/engine';
 import type { PlayerView, ResourceCounts, ResourceId, TradeOffer } from '@hexa/engine';
-import { playerColor, resourceName } from '@hexa/theme';
+import { resourceName } from '@hexa/theme';
+import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { PlayerInfo } from '../host/players.js';
 import { ResourceIcon } from './ResourceIcon.js';
@@ -148,7 +149,6 @@ export function TradeComposer({
           </button>
           {others.map((p) => {
             const info = infos.get(p.id);
-            const swatch = playerColor(info?.color ?? 'c1');
             const on = recipients.has(p.id);
             return (
               <button
@@ -165,10 +165,7 @@ export function TradeComposer({
                   })
                 }
               >
-                <span
-                  className="swatch"
-                  style={{ background: swatch.fill, borderColor: swatch.stroke }}
-                />
+                <Swatch color={info?.color ?? 'c1'} />
                 {info?.name ?? p.id}
               </button>
             );

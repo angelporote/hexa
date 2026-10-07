@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Action, PlayerView } from '@hexa/engine';
 import type { PreviewTarget } from '@hexa/protocol';
-import { playerColor } from '@hexa/theme';
+import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
 import type { PlayerInfo } from '../host/players.js';
@@ -146,7 +146,6 @@ export function PlacementPanel({
           <p className="muted">{t('ctl.victim.choose')}</p>
           {victims.map((id) => {
             const info = infos.get(id ?? '');
-            const swatch = playerColor(info?.color ?? 'c1');
             return (
               <button
                 key={id}
@@ -155,10 +154,7 @@ export function PlacementPanel({
                 aria-pressed={victim === id}
                 onClick={() => setVictim(id)}
               >
-                <span
-                  className="swatch"
-                  style={{ background: swatch.fill, borderColor: swatch.stroke }}
-                />
+                <Swatch color={info?.color ?? 'c1'} />
                 {info?.name ?? id}
               </button>
             );

@@ -1,6 +1,7 @@
 import type { PlayerView } from '@hexa/engine';
 import { playerColor } from '@hexa/theme';
 import { Countdown } from '../components/Countdown.js';
+import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { PlayerInfo } from '../host/players.js';
 import type { TurnClockState } from '../net/connection.js';
@@ -33,7 +34,7 @@ export function StatusBar({
       className={myTurn && !ended ? 'status my-turn' : 'status'}
       style={{ borderColor: swatch.fill }}
     >
-      <span className="swatch" style={{ background: swatch.fill, borderColor: swatch.stroke }} />
+      <Swatch color={me?.color ?? 'c1'} />
       <div className="status-text">
         <strong>{me?.name ?? you.id}</strong>
         <span>

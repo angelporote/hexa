@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { RoomState } from '@hexa/protocol';
-import { playerColor } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import { useConnection } from '../net/provider.js';
 import { AdminControls } from '../components/AdminControls.js';
+import { Swatch } from '../components/Swatch.js';
 import { TurnTimerOption } from '../components/TurnTimerOption.js';
 import { QrCode } from './QrCode.js';
 
@@ -42,13 +42,9 @@ export function Lobby({ room }: { room: RoomState }) {
         {seats.length === 0 && <p className="muted">{t('lobby.empty')}</p>}
         <ul className="seat-list">
           {seats.map((seat) => {
-            const swatch = playerColor(seat.color);
             return (
               <li key={seat.playerId} className={seat.connected ? 'seat' : 'seat offline'}>
-                <span
-                  className="swatch"
-                  style={{ background: swatch.fill, borderColor: swatch.stroke }}
-                />
+                <Swatch color={seat.color} />
                 <span className="seat-name">{seat.name}</span>
                 {seat.bot && <span className="tag">{t('lobby.bot')}</span>}
                 <span className={seat.ready ? 'tag tag-ok' : 'tag'}>

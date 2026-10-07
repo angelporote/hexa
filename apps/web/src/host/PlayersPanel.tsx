@@ -1,6 +1,7 @@
 import type { PlayerView } from '@hexa/engine';
 import { playerColor } from '@hexa/theme';
 import { Countdown } from '../components/Countdown.js';
+import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { TurnClockState } from '../net/connection.js';
 import type { PlayerInfo } from './players.js';
@@ -40,10 +41,7 @@ export function PlayersPanel({
             aria-current={active ? 'true' : undefined}
           >
             <div className="player-head">
-              <span
-                className="swatch"
-                style={{ background: swatch.fill, borderColor: swatch.stroke }}
-              />
+              <Swatch color={info?.color ?? 'c1'} />
               <span className="player-name">{info?.name ?? p.id}</span>
               {info?.bot && <span className="tag">{t('lobby.bot')}</span>}
               {info?.auto && <span className="tag">{t('players.auto')}</span>}

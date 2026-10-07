@@ -7,6 +7,7 @@ import { useI18n } from '../i18n/index.js';
 import type { ConnectionSnapshot } from '../net/connection.js';
 import { Dice } from './Dice.js';
 import { OfferSummary } from '../components/OfferSummary.js';
+import { Swatch } from '../components/Swatch.js';
 import { EventLog } from './EventLog.js';
 import { PlayersPanel } from './PlayersPanel.js';
 import { colorOf, nameOf, playerInfos } from './players.js';
@@ -26,10 +27,7 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
     <div className="game">
       <header className="topbar">
         <div className="turn-banner" style={{ borderColor: turnSwatch.fill }}>
-          <span
-            className="swatch"
-            style={{ background: turnSwatch.fill, borderColor: turnSwatch.stroke }}
-          />
+          <Swatch color={colorOf(infos, view.turn.player)} />
           <div>
             <strong>
               {view.phase.type === 'ended'

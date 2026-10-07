@@ -39,15 +39,63 @@ export const glyphs: Readonly<Record<TerrainId, string>> = {
   none: 'M2 19 Q8 8 12 14 T22 12 V20 H2 Z',
 };
 
+/**
+ * Colores de jugador elegidos para distinguirse también con daltonismo: la distancia entre
+ * cualquier par (ΔE) supera 35 con protanopía, deuteranopía y tritanopía (lo comprueba un test).
+ * Aun así el color nunca va solo: cada jugador tiene además una forma y un trazo de camino propios.
+ */
 export const playerColors: Readonly<Record<PlayerColorId, Swatch>> = {
-  c1: { fill: '#e0525a', stroke: '#8f2a30' },
-  c2: { fill: '#3d8bfd', stroke: '#1d4f9c' },
-  c3: { fill: '#f2a33a', stroke: '#a96a12' },
-  c4: { fill: '#8f6fe0', stroke: '#573aa0' },
+  c1: { fill: '#e03a63', stroke: '#7a1030' },
+  c2: { fill: '#7a6cf0', stroke: '#352a9c' },
+  c3: { fill: '#f5b800', stroke: '#8f6a00' },
+  c4: { fill: '#4cc9e0', stroke: '#1a7587' },
 };
 
+const FALLBACK_SWATCH: Swatch = { fill: '#9aa5b1', stroke: '#52606d' };
+
 export function playerColor(id: string): Swatch {
-  return playerColors[id as PlayerColorId] ?? { fill: '#9aa5b1', stroke: '#52606d' };
+  return playerColors[id as PlayerColorId] ?? FALLBACK_SWATCH;
+}
+
+export type PlayerMark = 'circle' | 'square' | 'triangle' | 'diamond';
+
+/** Forma que acompaña al color de cada jugador (tablero, tarjetas, selector de color…). */
+export const playerMarks: Readonly<Record<PlayerColorId, PlayerMark>> = {
+  c1: 'circle',
+  c2: 'square',
+  c3: 'triangle',
+  c4: 'diamond',
+};
+
+/** Trazados de las formas en una cuadrícula de −1 a 1, para escalarlas donde haga falta. */
+export const markPaths: Readonly<Record<PlayerMark, string>> = {
+  circle: 'M0 -1 A1 1 0 1 1 0 1 A1 1 0 1 1 0 -1 Z',
+  square: 'M-0.85 -0.85 H0.85 V0.85 H-0.85 Z',
+  triangle: 'M0 -1 L1 0.85 L-1 0.85 Z',
+  diamond: 'M0 -1.05 L1 0 L0 1.05 L-1 0 Z',
+};
+
+export function playerMark(id: string): PlayerMark {
+  return playerMarks[id as PlayerColorId] ?? 'circle';
+}
+
+export function playerMarkPath(id: string): string {
+  return markPaths[playerMark(id)];
+}
+
+/**
+ * Trazo (`stroke-dasharray`) de la línea central de los caminos de cada jugador: continuo,
+ * rayas, puntos y raya-punto. `null` = línea continua.
+ */
+export const roadDashes: Readonly<Record<PlayerColorId, string | null>> = {
+  c1: null,
+  c2: '5 4',
+  c3: '2 4',
+  c4: '8 3 2 3',
+};
+
+export function playerRoadDash(id: string): string | null {
+  return roadDashes[id as PlayerColorId] ?? null;
 }
 
 const resourceNames: Readonly<Record<Locale, Readonly<Record<ResourceId, string>>>> = {

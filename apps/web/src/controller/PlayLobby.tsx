@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { MAX_NAME_LENGTH, PLAYER_COLORS } from '@hexa/protocol';
 import type { RoomState } from '@hexa/protocol';
-import { playerColor, playerColors } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
 import { AdminControls } from '../components/AdminControls.js';
+import { Swatch } from '../components/Swatch.js';
 import { TurnTimerOption } from '../components/TurnTimerOption.js';
 import { useConnection } from '../net/provider.js';
 import { ShareRoom } from './ShareRoom.js';
@@ -64,10 +64,7 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
               disabled={taken.has(c)}
               onChange={() => void update({ color: c })}
             />
-            <span
-              className={taken.has(c) ? 'swatch swatch-lg taken' : 'swatch swatch-lg'}
-              style={{ background: playerColors[c].fill, borderColor: playerColors[c].stroke }}
-            />
+            <Swatch color={c} large taken={taken.has(c)} />
             <span className="sr-only">{t(COLOR_LABELS[c])}</span>
           </label>
         ))}
@@ -94,13 +91,9 @@ export function PlayLobby({ room, onLeave }: { room: RoomState; onLeave: () => v
       <h2>{t('play.lobby.others')}</h2>
       <ul className="seat-list">
         {room.seats.map((seat) => {
-          const swatch = playerColor(seat.color);
           return (
             <li key={seat.playerId} className={seat.connected ? 'seat' : 'seat offline'}>
-              <span
-                className="swatch"
-                style={{ background: swatch.fill, borderColor: swatch.stroke }}
-              />
+              <Swatch color={seat.color} />
               <span className="seat-name">
                 {seat.name}
                 {seat.playerId === me.playerId ? ` (${t('ctl.you')})` : ''}

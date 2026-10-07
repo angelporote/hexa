@@ -99,7 +99,12 @@ h2 {
   font-size: 1.1rem;
 }
 
+/* Enlace con aspecto de texto: la zona táctil sigue siendo de 44 px de alto. */
 .link-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.6rem;
   margin-left: auto;
   background: none;
   border: none;
@@ -129,13 +134,13 @@ h2 {
   border-color: #ffd166;
 }
 
+/* Color y forma del jugador (SVG); la forma es la que lo distingue sin depender del color. */
 .swatch {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex: none;
-  border-radius: 50%;
-  border: 2px solid;
+  overflow: visible;
 }
 
 /* ── Inicio ──────────────────────────────────────────────────────────────────────────── */
@@ -190,7 +195,7 @@ h2 {
 
 .lang-btn {
   min-width: 44px;
-  min-height: 36px;
+  min-height: 44px;
   background: transparent;
   color: var(--muted);
   border: none;
@@ -925,7 +930,7 @@ h2 {
 
 .hand,
 .costs {
-  padding: 0.8rem 0.9rem;
+  padding: 0.2rem 0.9rem;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -988,9 +993,15 @@ h2 {
   border-radius: 8px;
 }
 
+/* El resumen es el control que abre la tabla: 44 px de alto (22 de texto + 2 × 0,7 rem). */
 .costs summary {
+  padding-block: 0.7rem;
   cursor: pointer;
   font-weight: 600;
+}
+
+.costs[open] {
+  padding-bottom: 0.8rem;
 }
 
 .costs ul {
@@ -1249,7 +1260,7 @@ h2 {
 }
 
 .btn-sm {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
   margin-left: auto;

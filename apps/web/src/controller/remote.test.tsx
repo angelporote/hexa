@@ -62,7 +62,7 @@ describe('crear una sala a distancia', () => {
     );
     expect(screen.getByText('Crear partida a distancia')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Tu nombre'), { target: { value: ' Ana ' } });
-    fireEvent.click(screen.getByLabelText('Naranja'));
+    fireEvent.click(screen.getByLabelText('Ámbar'));
     fireEvent.click(screen.getByRole('button', { name: 'Crear sala' }));
     await waitFor(() => expect(transport.sent.map((s) => s.event)).toContain('room:create'));
     expect(transport.sent.find((s) => s.event === 'room:create')?.payload).toMatchObject({

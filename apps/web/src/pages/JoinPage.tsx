@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { MAX_NAME_LENGTH, PLAYER_COLORS, ROOM_CODE_LENGTH } from '@hexa/protocol';
-import { playerColors } from '@hexa/theme';
 import { ConnectionBanner } from '../components/ConnectionBanner.js';
 import { LanguageSwitch } from '../components/LanguageSwitch.js';
+import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { MessageKey } from '../i18n/index.js';
 import { useConnection, useSnapshot } from '../net/provider.js';
@@ -103,10 +103,7 @@ export function JoinPage() {
                 checked={color === c}
                 onChange={() => setColor(c)}
               />
-              <span
-                className="swatch swatch-lg"
-                style={{ background: playerColors[c].fill, borderColor: playerColors[c].stroke }}
-              />
+              <Swatch color={c} large />
               <span className="sr-only">{t(COLOR_LABELS[c])}</span>
             </label>
           ))}

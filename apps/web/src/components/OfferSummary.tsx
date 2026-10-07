@@ -1,16 +1,15 @@
 import type { ReactNode } from 'react';
 import type { TradeCounter, TradeOffer } from '@hexa/engine';
-import { playerColor } from '@hexa/theme';
+import { Swatch } from './Swatch.js';
 import { CountsRow } from '../controller/CountsRow.js';
 import { useI18n } from '../i18n/index.js';
 import type { PlayerInfo } from '../host/players.js';
 
 function Who({ id, infos }: { id: string; infos: ReadonlyMap<string, PlayerInfo> }) {
   const info = infos.get(id);
-  const swatch = playerColor(info?.color ?? 'c1');
   return (
     <span className="who">
-      <span className="swatch" style={{ background: swatch.fill, borderColor: swatch.stroke }} />
+      <Swatch color={info?.color ?? 'c1'} />
       {info?.name ?? id}
     </span>
   );

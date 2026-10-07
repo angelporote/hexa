@@ -1,7 +1,7 @@
 import { PLAYER_COLORS } from '@hexa/protocol';
 import type { PlayerColor } from '@hexa/protocol';
-import { playerColors } from '@hexa/theme';
 import { useI18n } from '../i18n/index.js';
+import { Swatch } from './Swatch.js';
 import type { MessageKey } from '../i18n/index.js';
 
 const LABELS: Record<PlayerColor, MessageKey> = {
@@ -39,10 +39,7 @@ export function ColorPicker({
               disabled={blocked}
               onChange={() => onChange(c)}
             />
-            <span
-              className={blocked ? 'swatch swatch-lg taken' : 'swatch swatch-lg'}
-              style={{ background: playerColors[c].fill, borderColor: playerColors[c].stroke }}
-            />
+            <Swatch color={c} large taken={blocked} />
             <span className="sr-only">{t(LABELS[c])}</span>
           </label>
         );
