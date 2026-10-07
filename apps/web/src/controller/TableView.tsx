@@ -6,6 +6,7 @@ import { EventLog } from '../host/EventLog.js';
 import { PlayersPanel } from '../host/PlayersPanel.js';
 import { colorOf, nameOf } from '../host/players.js';
 import type { PlayerInfo } from '../host/players.js';
+import { useRollHighlight } from '../board/use-roll-highlight.js';
 import { ZoomableBoard } from './ZoomableBoard.js';
 
 /** El tablero de solo lectura con la última tirada, para quien juega desde su propio dispositivo. */
@@ -19,6 +20,7 @@ export function TableBoard({
   infos: ReadonlyMap<string, PlayerInfo>;
 }) {
   const { t, locale } = useI18n();
+  const highlight = useRollHighlight(snapshot.diceRoll);
   const roll =
     snapshot.diceRoll ?? (view.turn.lastRoll ? { dice: view.turn.lastRoll, key: 0 } : null);
   return (
@@ -40,6 +42,7 @@ export function TableBoard({
         colorOf={(id) => colorOf(infos, id)}
         locale={locale}
         label={t('app.name')}
+        highlight={highlight}
         preview={
           snapshot.preview
             ? {

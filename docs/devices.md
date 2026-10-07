@@ -39,6 +39,7 @@ Abre `http://<IP-del-ordenador>:5173/host` en la pantalla grande (con la IP, no 
 - [ ] Un arrastre no elige una posición por accidente.
 - [ ] Se distinguen los cuatro jugadores en el tablero por su forma (● ■ ▲ ◆) y por el trazo de sus caminos, también en exteriores o con poco brillo. Si alguien con daltonismo puede probarlo, mejor.
 - [ ] La pantalla no se apaga durante la partida (Wake Lock). Anotar versión: iOS lo soporta desde 16.4.
+- [ ] Suena un aviso al empezar tu turno (con el sonido activado y tras haber tocado la pantalla una vez; en iOS el modo silencio del teléfono puede bloquearlo). Probar también el botón de altavoz.
 - [ ] El móvil vibra al empezar tu turno (en iOS Safari no existe la API de vibración: es esperable).
 - [ ] **Bloquear y desbloquear el móvil** a mitad de partida: vuelve solo a su asiento y a su vista, con el indicador de reconexión visible mientras tanto.
 - [ ] Cambiar de aplicación y volver, y activar/desactivar el modo avión unos segundos.

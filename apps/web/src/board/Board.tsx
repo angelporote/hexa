@@ -38,6 +38,8 @@ export interface BoardProps {
   interaction?: Interaction;
   /** Lo que está a punto de elegir el jugador de turno (se muestra en el host). */
   preview?: { target: PreviewTarget; color: string } | null;
+  /** Ficha de la última tirada: sus hexágonos laten un momento (salvo el que tapa el ladrón). */
+  highlight?: number | null;
 }
 
 /** Disposición del tablero a partir de la vista; separada para reutilizarla en el zoom. */
@@ -60,6 +62,7 @@ export function Board({
   viewBox,
   interaction,
   preview,
+  highlight = null,
 }: BoardProps) {
   const layout = useBoardLayout(board);
   const { x, y, w, h } = viewBox ?? layout.viewBox;
@@ -83,7 +86,15 @@ export function Board({
       })}
       {layout.hexes.map((hex) => {
         const tile = board.hexes[hex.id];
-        return tile ? <HexTile key={hex.id} hex={hex} tile={tile} locale={locale} /> : null;
+        return tile ? (
+          <HexTile
+            key={hex.id}
+            hex={hex}
+            tile={tile}
+            locale={locale}
+            pulse={highlight !== null && tile.number === highlight && hex.id !== robber}
+          />
+        ) : null;
       })}
       {Object.entries(roads).map(([edgeId, owner]) => {
         const edge = layout.edges[edgeId];

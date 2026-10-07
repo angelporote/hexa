@@ -1484,3 +1484,61 @@ h2 {
   margin: 0;
   color: var(--muted);
 }
+
+/* Feedback visual: recursos recibidos y hexágonos que producen con la última tirada */
+.hand-resources li {
+  position: relative;
+}
+
+.gain {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+  pointer-events: none;
+  animation: gain-up 1.6s ease-out both;
+}
+
+@keyframes gain-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1);
+  }
+}
+
+.hex.pulse polygon {
+  animation: hex-pulse 0.9s ease-in-out 4;
+}
+
+@keyframes hex-pulse {
+  0%,
+  100% {
+    stroke-width: 3;
+  }
+  50% {
+    stroke: #fff;
+    stroke-width: 8;
+  }
+}
+
+/* Quien pide menos movimiento no ve animaciones ni transiciones, en toda la aplicación. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

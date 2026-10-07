@@ -7,7 +7,10 @@ import { useI18n } from '../i18n/index.js';
 import type { ConnectionSnapshot } from '../net/connection.js';
 import { Dice } from './Dice.js';
 import { OfferSummary } from '../components/OfferSummary.js';
+import { SoundToggle } from '../components/SoundToggle.js';
 import { Swatch } from '../components/Swatch.js';
+import { useRollHighlight } from '../board/use-roll-highlight.js';
+import { useSoundEffects } from '../sound/use-sound-effects.js';
 import { EventLog } from './EventLog.js';
 import { PlayersPanel } from './PlayersPanel.js';
 import { colorOf, nameOf, playerInfos } from './players.js';
@@ -18,6 +21,8 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
   const { t, locale } = useI18n();
   const infos = useMemo(() => playerInfos(snapshot.room, view), [snapshot.room, view]);
   const name = (id: string) => nameOf(infos, id);
+  useSoundEffects(snapshot.events, null, 'public');
+  const highlight = useRollHighlight(snapshot.diceRoll);
   const winner = view.winner;
   const turnSwatch = playerColor(colorOf(infos, view.turn.player));
   const roll =
@@ -65,6 +70,7 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
           <span className="bank-item muted">{t('game.deck', { n: view.deckSize })}</span>
         </div>
         <span className="round">{t('game.round', { n: view.turn.number })}</span>
+        <SoundToggle />
       </header>
 
       <main className="board-area">
@@ -76,6 +82,7 @@ export function GameScreen({ view, snapshot }: { view: PlayerView; snapshot: Con
           colorOf={(id) => colorOf(infos, id)}
           locale={locale}
           label={t('app.name')}
+          highlight={highlight}
           preview={
             snapshot.preview
               ? {

@@ -162,6 +162,11 @@ export const es = {
   'lobby.spectators': '{n} espectadores',
   'lobby.qrAlt': 'Código QR para unirse a la sala {code}',
 
+  'ctl.gained': 'Recibes {list}',
+  'sound.toggle': 'Sonido',
+  'sound.on': 'Sonido activado',
+  'sound.off': 'Sonido desactivado',
+
   'options.timer': 'Temporizador de turno',
   'options.timerOff': 'Sin límite',
   'options.timerChoice': '{n} segundos',

@@ -21,6 +21,7 @@ import { SubstituteBanner } from './SubstituteBanner.js';
 import { TableBoard, TableView } from './TableView.js';
 import { WIDE_QUERY, useMediaQuery } from './use-media-query.js';
 import { useTurnVibration, useWakeLock } from './hooks.js';
+import { useSoundEffects } from '../sound/use-sound-effects.js';
 
 /** Mando del jugador durante la partida: mano privada, botones legales y colocación en el tablero. */
 export function Controller({ view, snapshot }: { view: PlayerView; snapshot: ConnectionSnapshot }) {
@@ -47,6 +48,8 @@ export function Controller({ view, snapshot }: { view: PlayerView; snapshot: Con
 
   useWakeLock(!ended);
   useTurnVibration(myTurn && !ended);
+  // Sin pantalla común (sala a distancia) también suenan los dados, las construcciones y el ladrón.
+  useSoundEffects(snapshot.events, you?.id ?? null, snapshot.room?.hostless ? 'all' : 'personal');
 
   // Al cambiar de fase o de turno, se vuelve a la pantalla principal del mando.
   const situation = `${view.turn.player}:${view.phase.type}`;

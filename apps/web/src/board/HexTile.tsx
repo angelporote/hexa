@@ -11,10 +11,13 @@ export function HexTile({
   hex,
   tile,
   locale,
+  pulse = false,
 }: {
   hex: LaidOutHex;
   tile: BoardHex;
   locale: Locale;
+  /** Late un momento: es uno de los hexágonos que producen con la última tirada. */
+  pulse?: boolean;
 }) {
   const { center } = hex;
   const colors = terrainColors[tile.terrain];
@@ -22,7 +25,7 @@ export function HexTile({
   const tokenY = center.y + HEX_SIZE * 0.2;
 
   return (
-    <g className="hex" data-hex={hex.id}>
+    <g className={pulse ? 'hex pulse' : 'hex'} data-hex={hex.id}>
       <title>
         {terrainName(locale, tile.terrain)}
         {tile.number === null ? '' : ` · ${tile.number}`}

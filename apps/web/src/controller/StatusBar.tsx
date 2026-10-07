@@ -1,6 +1,7 @@
 import type { PlayerView } from '@hexa/engine';
 import { playerColor } from '@hexa/theme';
 import { Countdown } from '../components/Countdown.js';
+import { SoundToggle } from '../components/SoundToggle.js';
 import { Swatch } from '../components/Swatch.js';
 import { useI18n } from '../i18n/index.js';
 import type { PlayerInfo } from '../host/players.js';
@@ -56,6 +57,7 @@ export function StatusBar({
           }
         />
       )}
+      <SoundToggle />
       <span className="status-points" aria-label={t('ctl.points', { n: you.totalPoints })}>
         {you.totalPoints}
       </span>

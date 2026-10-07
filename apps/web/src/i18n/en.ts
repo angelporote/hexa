@@ -164,6 +164,11 @@ export const en: Record<MessageKey, string> = {
   'lobby.spectators': '{n} spectators',
   'lobby.qrAlt': 'QR code to join room {code}',
 
+  'ctl.gained': 'You get {list}',
+  'sound.toggle': 'Sound',
+  'sound.on': 'Sound on',
+  'sound.off': 'Sound off',
+
   'options.timer': 'Turn timer',
   'options.timerOff': 'No limit',
   'options.timerChoice': '{n} seconds',
